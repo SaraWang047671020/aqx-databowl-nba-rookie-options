@@ -1,0 +1,47 @@
+﻿Draft_Year,Player,Pred_WS,Dynamic_Truth_WS,Worst_Injury_History,Star_Power_Index,Adjusted_Net_Surplus,Year3_WS,Year4,Actual,Outcome_Label,Year3_WS_Numeric,Never_Reached_Year3,Production_Confirmed_Bust,Pred_Error
+2023,Johnny Davis,0.455,2.04,0,0.0,-4.651,0.1,x,yes,Confirmed Bust,0.1,False,True,0.355
+2023,Malaki Branham,0.196,1.28,0,0.0,-3.167,0.1,v(trade),yes,Ambiguous / Traded,0.1,False,True,0.096
+2023,Ousmane Dieng,1.133,1.97,0,0.0,-2.442,0.9,v(trade in mid),yes,Ambiguous / Traded,0.9,False,True,0.23299999999999998
+2022,James Bouknight,0.654,1.97,0,0.0,-3.843,0.1,x,yes,Confirmed Bust,0.1,False,True,0.554
+2022,Cade Cunningham,1.477,2.73,0,0.119,-3.677,1.8,v,yes,Possible False Positive,1.8,False,True,-0.32299999999999995
+2022,Jalen Suggs,1.177,2.43,0,0.123,-3.657,4.7,v,yes,Possible False Positive,4.7,False,False,-3.523
+2022,Joshua Primo,0.989,1.89,0,0.0,-2.639,-0.1,x,yes,Confirmed Bust,-0.1,False,True,1.089
+2022,Davion Mitchell,1.274,2.12,0,0.011,-2.478,1.3,v(trade),yes,Ambiguous / Traded,1.3,False,True,-0.026000000000000023
+2022,Keon Johnson,0.457,1.2,0,0.035,-2.179,0.1,x,yes(trade right after),Confirmed Bust,0.1,False,True,0.357
+2022,Chris Duarte,1.384,1.81,1,0.0,-2.06,0.7,v(trade),yes,Ambiguous / Traded,0.7,False,True,0.6839999999999999
+2021,Killian Hayes,0.561,2.27,0,0.093,-5.013,-0.5,v(waived in mid),yes,Confirmed Bust,-0.5,False,True,1.061
+2021,Aleksej Pokusevski,0.228,1.51,0,0.042,-3.747,1,v(waived in mid),yes,Confirmed Bust,1.0,False,True,-0.772
+2021,James Wiseman,1.447,2.66,0,0.084,-3.541,0.8,v(trade in mid),yes,Ambiguous / Traded,0.8,False,True,0.647
+2021,Kira Lewis Jr.,1.161,1.81,0,0.026,-1.913,0.6,v(trade in mid),yes,Ambiguous / Traded,0.6,False,True,0.561
+2020,Jarrett Culver,0.698,2.35,1,0.1,-5.636,0.1,x,yes,Confirmed Bust,0.1,False,True,0.598
+2020,Darius Garland,0.795,2.43,0,0.157,-4.778,6.3,v,yes,Possible False Positive,6.3,False,False,-5.505
+2020,Sekou Doumbouya,0.399,1.66,0,0.17,-3.695,0.1,x,yes,Confirmed Bust,0.1,False,True,0.29900000000000004
+2020,Cam Reddish,1.162,2.04,0,0.111,-2.581,0.4,v(trade in mid),yes,Ambiguous / Traded,0.4,False,True,0.7619999999999999
+2020,De'Andre Hunter,1.92,2.5,1,0.044,-2.509,1.1,v,yes,Possible False Positive,1.1,False,True,0.8199999999999998
+2020,Romeo Langford,0.917,1.74,0,0.089,-2.403,0,v(trade in mid),yes,Ambiguous / Traded,0.0,False,True,0.917
+2019,Kevin Knox,0.265,2.12,1,0.065,-6.231,0.6,v(trade in mid),yes,Ambiguous / Traded,0.6,False,True,-0.33499999999999996
+2019,Lonnie Walker IV,0.999,1.43,2,0.052,-2.865,0.4,v,yes,Possible False Positive,0.4,False,True,0.599
+2019,Jerome Robinson,0.879,1.81,0,0.007,-2.736,-0.4,x,yes,Confirmed Bust,-0.4,False,True,1.279
+2019,Jacob Evans,0.525,0.67,2,0.042,-2.01,X,x,no,Confirmed Bust,,True,True,
+2019,Zhaire Smith,0.951,1.58,0,0.044,-1.853,X,x,no,Confirmed Bust,,True,True,
+2018,Josh Jackson,0.083,2.5,0,0.043,-7.085,0.5,x,yes,Confirmed Bust,0.5,False,True,-0.417
+2018,Frank Ntilikina,-0.087,2.2,0,0.037,-6.685,0.9,v,yes,Possible False Positive,0.9,False,True,-0.987
+2018,Markelle Fultz,1.305,2.73,0,0.035,-4.182,2.7,v,yes(trade right after),Confirmed Bust,2.7,False,True,-1.3950000000000002
+2018,Malik Monk,1.081,1.97,0,0.022,-2.595,0.7,v,yes,Possible False Positive,0.7,False,True,0.381
+2018,Justin Patton,0.839,1.58,0,0.029,-2.182,X,x,no,Confirmed Bust,,True,True,
+2017,Dragan Bender,0.518,2.5,0,0.022,-5.811,0.5,x,yes,Confirmed Bust,0.5,False,True,0.018000000000000016
+2017,Georgios Papagiannis,0.919,1.81,0,0.017,-2.622,X,x,no,Confirmed Bust,,True,True,
+2017,Kris Dunn,1.594,2.43,0,0.062,-2.438,0.6,v,yes,Possible False Positive,0.6,False,True,0.9940000000000001
+2016,Emmanuel Mudiay,0.524,2.27,0,0.076,-5.12,-0.3,v,yes(trade right after),Confirmed Bust,-0.3,False,True,0.8240000000000001
+2016,Mario Hezonja,0.811,2.43,0,0.0,-4.731,2.3,x,yes,Confirmed Bust,2.3,False,True,-1.4889999999999999
+2016,Rashad Vaughn,0.258,1.51,0,0.004,-3.659,-0.1,x,yes,Confirmed Bust,-0.1,False,True,0.358
+2015,Adreian Payne,0.279,1.66,0,0.037,-4.044,0.2,x,no,Confirmed Bust,0.2,False,True,0.07900000000000001
+2015,Nik Stauskas,1.157,2.2,0,0.058,-3.046,1.4,v(trade in mid),yes,Ambiguous / Traded,1.4,False,True,-0.24299999999999988
+2015,Bruno Caboclo,0.535,1.28,0,0.0,-2.174,0.1,v(trade in mid),yes,Ambiguous / Traded,0.1,False,True,0.43500000000000005
+2015,Julius Randle,1.534,2.27,0,0.062,-2.166,3.5,v,yes,Possible False Positive,3.5,False,False,-1.966
+2015,Noah Vonleh,1.412,2.12,0,0.053,-2.075,1.8,v(trade in mid),yes,Ambiguous / Traded,1.8,False,True,-0.3880000000000001
+2015,Tyler Ennis,0.803,1.43,0,0.014,-1.839,0.6,x,yes(trade right after),Confirmed Bust,0.6,False,True,0.20300000000000007
+2014,Anthony Bennett,0.684,2.73,0,-0.04,-5.999,0.1,x,yes(waived right after),Confirmed Bust,0.1,False,True,0.5840000000000001
+2014,Otto Porter Jr.,1.976,2.58,0,0.021,-1.768,5.6,v,yes,Possible False Positive,5.6,False,False,-3.6239999999999997
+2013,Austin Rivers,0.547,2.04,0,0.033,-4.382,0.7,x,yes,Confirmed Bust,0.7,False,True,-0.1529999999999999
+2013,Thomas Robinson,1.306,2.43,0,0.023,-3.281,0.5,x,yes,Confirmed Bust,0.5,False,True,0.806

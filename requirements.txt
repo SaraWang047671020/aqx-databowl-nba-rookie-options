@@ -1,0 +1,26 @@
+# 完整資料處理 + 模型訓練 pipeline 所需套件（notebooks/ 底下的 .ipynb）
+# 只想跑 Streamlit App 的話，請改用 webapp/requirements.txt（更輕量）
+
+pandas
+numpy
+scikit-learn
+matplotlib
+joblib
+
+# 爬蟲與反封鎖
+undetected-chromedriver
+selenium
+beautifulsoup4
+requests
+langdetect
+
+# NLP 情感分析
+torch
+transformers
+tqdm
+
+# 資料比對與整合
+fuzzywuzzy
+python-Levenshtein
+nba_api
+openpyxl
