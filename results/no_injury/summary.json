@@ -1,0 +1,20 @@
+{
+  "players": 329,
+  "blue": 226,
+  "green": 70,
+  "red": 33,
+  "labeled": 306,
+  "unlabeled": 23,
+  "red_labeled": 32,
+  "red_below": 30,
+  "red_no_year3": 1,
+  "red_below_or_no_year3": 31,
+  "red_mae": 0.84704170615625,
+  "red_bias": -0.10105896859374994,
+  "disposition_counts": {
+    "Confirmed Bust": 19,
+    "Ambiguous / Traded": 8,
+    "Possible False Positive": 6
+  },
+  "disposition_net_proxy": 58.247755104999996
+}

@@ -11,10 +11,12 @@
 本專題把球員視為一項金融資產，結合
 
 - **機器學習**：用新秀前兩年的表現預測第三年產能（Win Shares）
-- **NLP 輿情分析**：把場外新聞聲量與傷病紀錄轉化為可量化的風險 / 商業變數
+- **NLP 輿情分析**：把新聞情緒與報導量轉化為商業聲量指數；傷病扣分僅保留為補充試验，不進入主分析
 - **實質選擇權定價（Real Options Valuation）**：把「是否執行球隊選擇權」當成一個選擇權定價問題
 
 打造一套具備多層防護網的自動化決策系統，並串接 Claude LLM 產出球探報告，最終以真實歷史案例回測系統的判斷準確率。
+
+> **研究主分析更新（2026-09-30）**：移除額外傷病扣分，維持原 WS 模型、46 項特徵、RMSE 及其他規則。329 人結果為 **226 藍／70 綠／33 紅**。以 `scripts/research_no_injury.py` 和 `results/no_injury/` 為新版研究依據；舊 notebooks、驗證 CSV 與 Streamlit 屬歷史實作，本次未同步修改網站。正式模型沒有獨立的出賽場次欄位，不宣稱已完整涵蓋健康風險。
 
 ---
 
@@ -45,7 +47,7 @@ Kaggle 歷史數據 ─┐
       │                    │
       └────────┬───────────┘
                ▼
-   財務定價 + 五層瀑布流決策引擎 (decision_engine.py)
+   財務定價 + 五層瀑布流研究主分析 (scripts/research_no_injury.py)
                │
      ┌─────────┼─────────────┐
      ▼                       ▼
@@ -66,13 +68,13 @@ Kaggle 歷史數據 ─┐
 
 ## 一、資料處理與 NLP 輿情分析 Pipeline
 
-傳統數據無法量化「傷病隱患」與「場外商業價值」，因此本專題開發了一套具備抗封鎖機制的自動化爬蟲與 NLP 管線，對應 `notebooks/data_pipeline/`：
+新聞情緒與報導量用於補充場外聲量資訊，對應 `notebooks/data_pipeline/`。額外傷病資料因完整性不足，已不納入主分析扣分：
 
 | Notebook | 功能 |
 | --- | --- |
 | `build_feature_dataset.ipynb` | 整合 Kaggle 歷年數據、選秀順位、大學數據，做名稱標準化、缺失值處理與新秀年特徵抽取，產出 `NBA_Normalized_Final.csv` / `NBA_Player_Final_Master_Features.csv` |
 | `scrape_player_news.ipynb` | 自建反封鎖新聞爬蟲 + TF-IDF 去重，產出各年份 `NBA_News_{year}_Full_Cohort.csv` |
-| `sentiment_analysis.ipynb` | 用 Transformer 情感模型為新聞標題打分，聚合成 `Star_Power_Index`（商業聲量）與 `Worst_Injury_History`（傷病紅旗指數） |
+| `sentiment_analysis.ipynb` | 用 Transformer 情感模型為新聞打分並聚合 `Star_Power_Index`；歷史傷病欄位不再供主分析扣分 |
 
 **擬真抗封鎖爬蟲設計**：
 - 捨棄傳統 Selenium，改用 `undetected-chromedriver` 並移除硬編碼版本號，動態適應本機 Chrome 版本
@@ -83,7 +85,7 @@ Kaggle 歷史數據 ─┐
 **文本清洗與量化**：
 - `langdetect` 過濾非英語雜訊
 - `TfidfVectorizer` + Cosine Similarity（門檻 0.85）去除內容農場重複轉載
-- 最終彙總為兩個決策引擎會用到的量化欄位：`Worst_Injury_History`、`Star_Power_Index`
+- 主分析使用 `Star_Power_Index`；`Worst_Injury_History` 保留作歷史資料，不將缺漏或 0 解讀為健康。
 
 ---
 
@@ -111,7 +113,7 @@ Kaggle 歷史數據 ─┐
 | **Lasso** | 0.5562 | 0.5756 | 1.5411 | 1.2012 | — | 1.7783 ± 0.1349 | -0.2112 | 0.7209 |
 | **PLS** | 0.5486 | 0.5816 | 1.5436 | 1.1928 | 0.8728 | 1.7875 ± 0.1217 | -0.1852 | 0.7079 |
 
-- **精準度**：各模型的交叉驗證 R² 相近（0.54–0.57），但 Lasso 在盲測集上的 RMSE（1.5411）與 MAE（1.2012）最低——在需要精確量化合約價值的場景中，誤差最小的模型最實用。
+- **精準度**：沿用上表原始比較數值，Lasso 的測試 RMSE 最低（1.5411），PLS 的 MAE 最低（1.1928），Ridge 的測試 R² 最高（0.5910）。各模型資料版本／切分不完全一致，不把此表當成嚴格同條件競賽；模型數值本次未更動。
 - **泛化能力**：Lasso 與 Elastic Net 的 CV RMSE 標準差最小、Train-Test Gap 為負值（代表測試集表現甚至優於訓練集），相較之下 Random Forest 的 Train-Test Gap 偏高（0.2411），過擬合風險較高。
 
 $\Rightarrow$ **最終選定 Lasso Regression** 作為決策引擎的核心預測模型（實際部署參數見 `webapp/train_model.py`：46 個特徵、`alpha ≈ 0.0492`、Test R² = 0.577、Test RMSE = 1.786，訓練樣本 1,001 筆／測試樣本 251 筆）。
@@ -120,7 +122,7 @@ $\Rightarrow$ **最終選定 Lasso Regression** 作為決策引擎的核心預�
 
 ## 三、Win Share 預測與球隊選擇權決策引擎
 
-為讓 Win Share 真實反映球員報酬，並消弭不同年代貨幣價值波動造成的誤差，決策引擎（`webapp/decision_engine.py`）依序執行以下五個階段：
+研究主分析（`scripts/research_no_injury.py`）將既有 Win Shares 預測轉為合約決策，不重新訓練模型。以下公式是估計框架，不代表真實市場定價：
 
 #### 1. 球員實質價值與理論薪資估算
 - 用 Lasso 模型預測球員第三年的預期產能 $\widehat{WS}$
@@ -132,10 +134,10 @@ $$Marginal\ Value\ per\ WS = \frac{Salary\ Cap \times Team\ Count \times BRI\ Fa
 
 $$Pred\ Salary\ Share\ Percent = \left[ \frac{\widehat{WS} \times Marginal\ Value\ per\ WS}{Salary\ Cap} \right] \times 100\%$$
 
-#### 2. 傷病風險校正
-依球員生涯前兩年缺賽場次與受傷部位，給予 0–3 分嚴重度評分，每 1 級風險扣減 0.8% 團隊薪資空間（此權重來自對 2000–2023 歷史數據 0.0%–5.0% 的 1D Grid Search 回測，能同時避開高薪水貨與避免錯殺潛力股）：
+#### 2. 不另施加傷病折價
+傷病紀錄不完整，补充分析中的改善又集中於少數個案，因此主分析移除額外扣分。此選擇不表示健康資訊無用，也不表示移除後回測更好。既有模型特徵保持不變。
 
-$$Adjusted\ Pred\ Salary\ Percent = Pred\ Salary\ Share\ Percent - (Worst\ Injury\ History \times 0.8\%)$$
+$$Adjusted\ Pred\ Salary\ Percent = Pred\ Salary\ Share\ Percent$$
 
 #### 3. 定額合約成本基準
 依 CBA 規定，新秀合約薪資與選秀順位高度相關。系統依選秀順位換算出合約成本佔薪資帽比例（`Est_Cost_Percent`），並算出帳面盈虧：
@@ -145,51 +147,53 @@ $$Net\ Value\ Surplus = Adjusted\ Pred\ Salary\ Percent - Est\ Cost\ Percent$$
 #### 4. 動態機會成本及格線
 高順位新秀成本高，放走他釋出的薪資空間能在自由市場買到更多替代資產，因此續約及格線需動態調高（底薪替代成本約 1.8% 薪資帽、保底產能約 0.64 WS）：
 
-$$Dynamic\ Truth\ WS = \max\left( \frac{Est\ Cost\ Percent}{Marginal\ Value\ per\ WS},\ 0.64 \right)$$
+令 $V = 30 \times BRI / 1230 \times 100$，則 $Dynamic\ Truth\ WS = \max(Est\ Cost\ Percent, 1.8) / V$。本次保留既有預測表的門檻值。
 
 #### 5. 多層瀑布流決策矩陣
 單純用數值高低做二分判定容易被統計噪聲誤導，因此系統設計了由上而下的多層防護網（實質選擇權概念），對應 `apply_waterfall()`：
 
 | 關卡 | 判定條件 | 決策說明 |
 | :--- | :--- | :--- |
-| 🔵 絕對獲利區 | `Net_Value_Surplus > 0` | 扣除風險折價後仍高於合約成本，絕對正資產 |
+| 🔵 絕對獲利區 | `Net_Value_Surplus > 0` | 預期價值高於合約成本，不另扣傷病 |
 | 🟢 統計容錯區 | 虧損 ≥ `-1.25 × RMSE` | 落於模型統計誤差內（1.25 倍為買權時間價值），避免因誤差錯殺潛力股 |
 | 🟢 動態機會成本救贖 | $\widehat{WS} \ge Dynamic\ Truth\ WS$ | 場上產能仍優於自由市場替代方案，留下他虧損反而比放走划算 |
-| 🟢 商業聲量救場 | 聲量位居同梯次 PR70 以上，且虧損 ≥ `-1.5 × RMSE` | 超級巨星效應：票房、周邊、轉播等外部性可彌補場上的產能落差 |
+| 🟢 商業聲量救場 | 同梯研究首輪樣本 SPI ≥ PR70，且淨盈餘 ≥ `-1.5 × (1.25 × RMSE)` | 場外聲量輔助判斷；尚未用真實營收驗證 |
 | 🔴 絕對止損區 | 以上皆未通過 | 建議不執行選擇權，釋出薪資空間 |
 
 決策結果視覺化範例（X 軸：合約成本佔比，Y 軸：預測 WS）：
 
-![Contract Decision 2023](images/Contract_Decision_2023.png)
+不扣傷病時第三層條件蘊含淨盈餘非負，已被前兩層涵蓋，不會新增留用者。原 RMSE（WS）直接與薪資帽百分比比較的單位問題亦保留為限制，本次未變更以隔離傷病扣分影響。
+
+![Contract Decision 2023](results/no_injury/decision_2023.png)
 
 ---
 
 ## 四、歷史回測驗證結果
 
-系統對 2013–2023 年、被模型判定應「止損（不執行選擇權）」的球員做逐一回溯驗證（`scripts/validate_declined_players.py`），確認模型判斷是否對應到真實結局：
+新版研究涵蓋 329 名首輪球員，其中 306 人有第三年 WS 可評分；其餘 23 人仍分類但不補成 0。以 WS 是否達動態門檻評分，不等同球團實際續約結果。藍、綠均視為續留，紅視為放棄。完整結果見 `results/no_injury/`：
 
 | 指標 | 結果 |
 | --- | --- |
-| 模型判定止損總筆數 | 46 |
-| ✅ Confirmed Bust（判斷正確） | 24 筆（52.2%） |
-| 🔀 Ambiguous / Traded（無法單純二分，如交易後爆發） | 12 筆 |
-| ❓ Possible False Positive（模型可能誤判） | 10 筆 |
-| **排除 Ambiguous 後的 Precision** | **70.6%** |
-| **產能面確認止損率**（沒打到第三年 或 WS 未達安全門檻） | **91.3%**（42 / 46） |
-| 財務反事實：Confirmed Bust 群組避免的預估虧損總和 | 92.94%（薪資帽 %） |
-| 財務反事實：False Positive 群組可能犧牲的留用價值 | 33.14%（薪資帽 %） |
-| **淨效益（避免虧損 − 犧牲價值）** | **+59.80%**（薪資帽 %） |
-| 紅區子集預測誤差 | MAE 0.875，平均偏差 −0.132（模型略為低估） |
+| 藍／綠／紅 | 226／70／33 |
+| 止損名單有第三年 WS | 32 人，其中 30 人低於 DTW（93.75%） |
+| 止損名單無第三年紀錄 | 1 人，另列，不當作 WS = 0 |
+| 全體有標籤決策正確率 | 207／306 = 67.65% |
+| TP／FP／TN／FN | 177／97／30／2 |
+| 原訂評分 | 940（TP +10、FP −10、TN +5、FN −5） |
+| 既有後續處置標註 | 確認止損 19、交易 8、可能誤判 6；本次未重新核驗全部外部事件 |
+| 排除交易後處置比例 | 19／25 = 76.0%，不等同產能命中率 |
+| 處置分組淨盈餘代理量 | +58.25 薪資帽百分點，非已實現財務利益 |
+| 紅區有標籤預測誤差 | MAE 0.847、平均偏差 −0.101 |
 
-驗證結果顯示：即使把「交易後才爆發」這類無法單純二分的個案排除，系統對於「該止損」球員的判斷精準度仍有 70.6%；若改以球員實際產能是否達標來看，91.3% 的止損建議都對應到球員確實沒能打出對得起合約的表現。
+後期 140 人不扣傷病得 470 分；補查最低傷病計數下固定 0.8 得 485 分，但改善完全來自 Hunter 一人。移除该人或其 2020 梯次後優勢歸零，不能宣稱穩定改善，也不能證明純屬偶然。傷病試驗只作補充，不稱為最佳權重驗證。後期資料此前已檢視，且 WS 預測固定，不能宣稱全新盲測或完整模型的無洩漏時間外驗證。
 
-![Validation Summary](images/Validation_Summary.png)
+![Validation Summary](results/no_injury/validation.png)
 
 ---
 
 ## 五、Streamlit 決策系統網站
 
-`webapp/` 是一個 Streamlit 網站，把上述模型與決策引擎包裝成可互動查詢的工具：
+`webapp/` 是原有 Streamlit 展示網站。依本次工作範圍，**網站未同步新版研究規則**；其聲量門檻母體亦與研究樣本不同，不以網站輸出替代上述研究結果。
 
 - **📚 查詢歷史球員**：選擇選秀年份（2000–2023）與球員，直接顯示已算好的預測 WS、財務指標與決策燈號
 - **✍️ 手動輸入新球員**：輸入任意球員的投籃 / 籃板助攻防守 / 進階數據與選秀順位，即時跑模型預測 + 財務決策
@@ -257,8 +261,7 @@ streamlit run app.py
 
 ```bash
 pip install -r requirements.txt
-python scripts/generate_decision_charts.py     # 產出 images/Contract_Decision_{year}.png
-python scripts/validate_declined_players.py    # 產出 data/Declined_Players_Validation.csv + images/Validation_Summary.png
+python scripts/research_no_injury.py          # 新版研究主分析，產出 results/no_injury/
 ```
 
 ### 重跑資料處理 / 模型比較 notebook
@@ -269,6 +272,7 @@ python scripts/validate_declined_players.py    # 產出 data/Declined_Players_Va
 
 - **樣本規模**：訓練樣本約 1,000 筆（2000–2023 年首輪新秀），模型 Test R² 落在 0.55–0.59，仍有一定預測誤差空間，因此決策引擎刻意用多層防護網（而非單一硬閾值）降低誤判成本。
 - **爬蟲穩定性**：新聞爬蟲依賴 Google 搜尋結果頁與抗封鎖機制，Chrome / 搜尋頁結構更動時需要調整爬蟲邏輯。
-- **回測樣本**：目前回測只涵蓋「模型判定止損」的 46 筆個案，尚未對「建議執行」的個案做同等規模的反向驗證。
+- **回測樣本**：329 人均產生分類，306 人有 WS 標籤可評分；球團後續處置標註仍主要限於紅區。歷史 notebooks 與舊 CSV 保留，不當作新版結果。
+- **傷病與健康**：資料不完整，因此主分析不另扣傷病；46 項正式特徵沒有獨立的出賽場次欄位，不宣稱模型已完整反映健康。傷病補充試驗不證明穩定改善。
 - 已完成：LLM 球探報告生成（原規劃的未來項目，已在 `webapp/report_generator.py` 實作）。
 - 規劃中：擴大回測涵蓋「建議執行」個案的實際 ROI 追蹤、支援更多聯盟（如 WNBA / 海外聯賽）的可轉移性測試。
