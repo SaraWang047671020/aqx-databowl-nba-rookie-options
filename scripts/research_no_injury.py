@@ -79,20 +79,20 @@ for name,frame in [('decisions',p),('declined',red),('yearly',yearly),('validati
 (OUT/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10})
 fig,ax=plt.subplots(figsize=(9,4.3));ax.plot(sensitivity.multiplier,sensitivity.red,'o-',label='Stop-loss count');ax.set_xlabel('RMSE buffer multiplier');ax.set_ylabel('Players')
-other=ax.twinx();other.plot(sensitivity.multiplier,100*sensitivity.hit_rate,'s--',color='darkorange');other.set_ylabel('Below-threshold share (%) among labeled rejects');ax.set_title('No additional injury deduction');fig.tight_layout();fig.savefig(OUT/'sensitivity.png',dpi=180);plt.close(fig)
+other=ax.twinx();other.plot(sensitivity.multiplier,100*sensitivity.hit_rate,'s--',color='darkorange');other.set_ylabel('Below-threshold share (%) among labeled rejects');ax.set_title('Decision sensitivity to the statistical buffer');fig.tight_layout();fig.savefig(OUT/'sensitivity.png',dpi=180);plt.close(fig)
 fig,ax=plt.subplots(figsize=(9,4.3));ax.bar(validation.year,validation.below,label='Below WS threshold');ax.bar(validation.year,validation.red-validation.below-validation.no_year3,bottom=validation.below,label='At/above threshold');ax.bar(validation.year,validation.no_year3,bottom=validation.red-validation.no_year3,label='No year-3 record');ax.set_xticks(validation.year);ax.set_ylabel('Rejected players');ax.legend();fig.tight_layout();fig.savefig(OUT/'validation.png',dpi=180);plt.close(fig)
 for year in [2023]:
     q=p[p.year_start.eq(year)];fig,ax=plt.subplots(figsize=(10,6));ax.scatter(q.Est_Cost_Percent,q.Pred_WS,c=q.color,s=65)
     for row in q.itertuples():ax.annotate(row.Player,(row.Est_Cost_Percent,row.Pred_WS),fontsize=6,xytext=(3,3),textcoords='offset points')
-    ax.set_xlabel('Estimated contract cost (% of salary cap)');ax.set_ylabel('Predicted year-3 WS');ax.set_title(f'{year} cohort: no additional injury deduction');fig.tight_layout();fig.savefig(OUT/f'decision_{year}.png',dpi=180);plt.close(fig)
+    ax.set_xlabel('Estimated contract cost (% of salary cap)');ax.set_ylabel('Predicted year-3 WS');ax.set_title(f'{year} cohort: contract cost and predicted production');fig.tight_layout();fig.savefig(OUT/f'decision_{year}.png',dpi=180);plt.close(fig)
 # Updated workflow figure replaces the old injury-dependent diagram.
 fig,ax=plt.subplots(figsize=(8,5));ax.axis('off')
-texts=['First two playing seasons\n46 fixed model features','Existing Lasso predictions\nYear-3 Win Shares','Contract value minus cost\nNo injury deduction','Waterfall decision\nFirst-round cohort SPI PR70','329 players\n226 blue / 70 green / 33 red']
+texts=['First two playing seasons\n46 model features','Lasso predictions\nYear-3 Win Shares','Contract value minus cost\nANS = S - K','Waterfall decision\nFirst-round cohort SPI PR70','329 players\n226 blue / 70 green / 33 red']
 positions=[(.25,.85),(.75,.85),(.75,.50),(.25,.50),(.25,.16)]
 for txt,(x,y) in zip(texts,positions):
     ax.text(x,y,txt,ha='center',va='center',fontsize=13,bbox=dict(boxstyle='round,pad=.6',facecolor='#e8f1f5',edgecolor='#264653'))
 for start,end in [((.45,.85),(.55,.85)),((.75,.73),(.75,.62)),((.55,.5),(.45,.5)),((.25,.38),(.25,.28))]:
     ax.annotate('',xy=end,xytext=start,arrowprops=dict(arrowstyle='->',lw=1.5))
-ax.text(.74,.16,'Injury evidence:\nsupplementary checks only',ha='center',fontsize=12)
+ax.text(.74,.16,'Validation and sensitivity\nObserved year-3 outcomes',ha='center',fontsize=12)
 fig.tight_layout();fig.savefig(OUT/'workflow.png',dpi=180);plt.close(fig)
 print(json.dumps(summary,ensure_ascii=False,indent=2));print(sensitivity.to_string(index=False))
