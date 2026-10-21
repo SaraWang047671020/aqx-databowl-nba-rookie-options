@@ -16,7 +16,7 @@
 - **NLP 輿情分析**：把新聞情緒與報導量轉化為商業聲量指數
 - **實質選擇權定價（Real Options Valuation）**：把「是否執行球隊選擇權」當成一個選擇權定價問題
 
-打造一套具備多層防護網的自動化決策系統，並串接 Claude LLM 產出球探報告，最終以真實歷史案例回測系統的判斷準確率。
+打造一套具備多層防護網的自動化決策系統，並串接 OpenAI 模型產出球探報告，最終以真實歷史案例回測系統的判斷準確率。
 
 > **研究分析入口**：以 46 項前兩季特徵預測第三年 WS，換算預期價值並比較合約成本，再透過統計容錯、機會成本及商業聲量條件產生分類。329 人結果為 **226 藍／70 綠／33 紅**。研究程式與完整輸出位於 `scripts/research_no_injury.py` 和 `results/no_injury/`；網站展示與研究分析的適用範圍請見下方說明。
 
@@ -53,7 +53,7 @@ Kaggle 歷史數據 ─┐
                │
      ┌─────────┼─────────────┐
      ▼                       ▼
-歷史案例回測驗證      Streamlit 網站 + Claude LLM 球探報告
+歷史案例回測驗證      Streamlit 網站 + AI 球探報告
 (validate_declined_players.py)   (webapp/app.py)
 ```
 
@@ -202,7 +202,7 @@ $$Net\ Value\ Surplus = Adjusted\ Pred\ Salary\ Percent - Est\ Cost\ Percent$$
 - **📊 歷史回測**：燈號分布、止損命中率、淨效益、四格對錯表與止損名單
 - **🎛️ 參數模擬**：調整統計容錯倍數、聲量門檻與救場容錯，即時重跑 329 人回測
 - **✍️ 輸入新球員**：輸入前兩季數據與選秀順位，即時預測與決策
-- **🧠 AI 球探報告**：串接 Claude API（`claude-haiku-4-5`），依決策結果生成 3–5 句球探報告（`webapp/report_generator.py`）
+- **🧠 AI 球探報告**：串接 OpenAI API（預設 `gpt-5-mini`），依決策結果生成 3–5 句球探報告（`webapp/report_generator.py`）
 
 ---
 
@@ -257,7 +257,7 @@ nba_player_year3_option_predict/
 ```bash
 cd webapp
 pip install -r requirements.txt
-cp .env.example .env        # 填入你自己的 ANTHROPIC_API_KEY（LLM 球探報告用，非必要）
+cp .env.example .env        # 填入你自己的 OPENAI_API_KEY（LLM 球探報告用，非必要）
 python train_model.py       # 從 data/NBA_Normalized_Final.csv 訓練 Lasso 模型
 streamlit run app.py
 ```

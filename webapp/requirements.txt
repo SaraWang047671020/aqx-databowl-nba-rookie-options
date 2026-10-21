@@ -1,8 +1,8 @@
-﻿streamlit>=1.50
+streamlit>=1.50
 scikit-learn==1.9.0
 pandas
 numpy
 joblib
 plotly
-anthropic
+openai
 python-dotenv

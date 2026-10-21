@@ -119,7 +119,7 @@ STRINGS = {
 
     # ---- LLM ----
     "llm_button": {"en": "🧠 Generate AI scouting report", "zh": "🧠 生成 AI 球探報告"},
-    "llm_spinner": {"en": "Claude is writing the scouting report...", "zh": "正在請 Claude 撰寫球探報告..."},
+    "llm_spinner": {"en": "Writing the scouting report...", "zh": "正在撰寫球探報告..."},
     "llm_title": {"en": "#### 📝 Scouting report", "zh": "#### 📝 球探報告"},
     "llm_limit": {"en": "Report limit reached for this session.", "zh": "本次瀏覽已達報告生成上限。"},
 

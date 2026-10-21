@@ -16,7 +16,7 @@ This project treats each rookie as a financial asset and combines:
 - **NLP** — turn rookie-season news coverage into a *Star Power Index* using RoBERTa sentiment
 - **Real options valuation** — treat "exercise the team option?" as pricing a call option, with a five-gate decision waterfall
 
-The result is an interactive decision system with an AI scouting report (Claude), backtested on every first-round pick from the 2013–2023 cohorts.
+The result is an interactive decision system with an AI scouting report (OpenAI), backtested on every first-round pick from the 2013–2023 cohorts.
 
 > **Headline result:** of 329 first-round picks, the system says **226 exercise / 70 keep / 33 decline**. Of the 32 declined players who reached a third season, **30 (93.75%) really did produce below the replacement-level bar**. The research code and full outputs live in `scripts/research_no_injury.py` and `results/no_injury/`; the web app uses exactly the same rules.
 
@@ -53,7 +53,7 @@ Sentiment (RoBERTa)      (6 models compared → Lasso)
                  │
        ┌─────────┼──────────────┐
        ▼                        ▼
-Historical backtest      Streamlit app + Claude scouting reports
+Historical backtest      Streamlit app + AI scouting reports
                          (webapp/app.py)
 ```
 
@@ -208,7 +208,7 @@ Accuracy is 66.27% for the earlier 166 players and 69.29% for the later 140. Thi
 - **📊 Backtest** — decisions by cohort, stop-loss hit rate, net benefit, the keep/decline confusion matrix and the full stop-loss list
 - **🎛️ What-if** — move the statistical buffer, star-power percentile and rescue tolerance to re-run all 329 decisions live and see who changes
 - **✍️ New player** — enter a player's first-two-season stats and draft pick for an instant forecast and decision
-- **🧠 AI scouting report** — Claude (`claude-haiku-4-5`) writes a 3–5 sentence report grounded only in the player's numbers and decision (`webapp/report_generator.py`)
+- **🧠 AI scouting report** — an OpenAI model (`gpt-5-mini` by default) writes a 3–5 sentence report grounded only in the player's numbers and decision (`webapp/report_generator.py`)
 
 "Cohort" means the calendar year the rookie season ended: the 2020 cohort is the 2019 draft class.
 
@@ -237,7 +237,7 @@ Accuracy is 66.27% for the earlier 166 players and 69.29% for the later 140. Thi
 │   ├── decision_engine.py        # valuation, waterfall, backtest
 │   ├── charts.py                 # Plotly charts
 │   ├── i18n.py                   # English / Chinese strings
-│   ├── report_generator.py       # Claude scouting reports
+│   ├── report_generator.py       # AI scouting reports (OpenAI)
 │   ├── train_model.py
 │   ├── requirements.txt
 │   ├── .env.example
@@ -262,7 +262,7 @@ Accuracy is 66.27% for the earlier 166 players and 69.29% for the later 140. Thi
 ```bash
 cd webapp
 pip install -r requirements.txt
-cp .env.example .env        # optional: add your ANTHROPIC_API_KEY for AI scouting reports
+cp .env.example .env        # optional: add your OPENAI_API_KEY for AI scouting reports
 streamlit run app.py
 ```
 

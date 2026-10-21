@@ -1,6 +1,7 @@
 """
-呼叫 Claude API，根據球員的預測數據與決策結果，生成一份簡短的球探報告。
-API key 從環境變數 ANTHROPIC_API_KEY 讀取（本機透過 .env；Streamlit Cloud 透過 Secrets），不寫死在程式碼中。
+呼叫 OpenAI API，根據球員的預測數據與決策結果，生成一份簡短的球探報告。
+API key 從環境變數 OPENAI_API_KEY 讀取（本機透過 .env；Streamlit Cloud 透過 Secrets），不寫死在程式碼中。
+模型可用環境變數 OPENAI_MODEL 覆寫。
 """
 import json
 import math
@@ -10,7 +11,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL_NAME = "claude-haiku-4-5"
+MODEL_NAME = os.environ.get("OPENAI_MODEL", "gpt-5-mini")
+# 推理型模型的 token 上限包含推理過程，需預留足夠空間
+MAX_COMPLETION_TOKENS = 2000
 
 SYSTEM_PROMPT = {
     "zh": (
@@ -63,29 +66,34 @@ def _clean(value):
 
 def generate_scouting_report(row: dict, lang: str = "en") -> str:
     """回傳生成的球探報告文字。若 API 呼叫失敗，拋出 ReportGenerationError 讓呼叫端妥善處理。"""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise ReportGenerationError(
-            "ANTHROPIC_API_KEY is not set." if lang == "en"
-            else "找不到 ANTHROPIC_API_KEY 環境變數，請參考 .env.example 設定你的 API 金鑰。"
+            "OPENAI_API_KEY is not set." if lang == "en"
+            else "找不到 OPENAI_API_KEY 環境變數，請參考 .env.example 設定你的 API 金鑰。"
         )
 
     try:
-        import anthropic
+        from openai import OpenAI
     except ImportError as e:
-        raise ReportGenerationError("pip install anthropic") from e
+        raise ReportGenerationError("pip install openai") from e
 
     payload = {name: _clean(row.get(key)) for key, name in FIELDS.items()}
     payload["decision_stage"] = STAGE_NAMES[row["stage"]]
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
+        client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
             model=MODEL_NAME,
-            max_tokens=500,
-            system=SYSTEM_PROMPT.get(lang, SYSTEM_PROMPT["en"]),
-            messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
+            max_completion_tokens=MAX_COMPLETION_TOKENS,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT.get(lang, SYSTEM_PROMPT["en"])},
+                {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+            ],
         )
-        return message.content[0].text
+        text = (response.choices[0].message.content or "").strip()
     except Exception as e:  # noqa: BLE001 - 這裡刻意攔截所有 API 例外，轉成友善訊息給 UI
         raise ReportGenerationError(f"LLM report failed: {e}") from e
+    if not text:
+        raise ReportGenerationError("LLM returned an empty report." if lang == "en" else "模型未回傳內容，請再試一次。")
+    return text
