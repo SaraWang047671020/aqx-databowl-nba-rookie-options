@@ -114,15 +114,15 @@ def render_reality(row: dict, lang: str):
     if not row["has_year3"]:
         st.info(t("reality_none", lang))
     else:
-        cols = st.columns(3)
+        if row["call_correct"]:
+            st.success(t("reality_correct", lang))
+        else:
+            st.error(t("reality_wrong", lang))
+        cols = st.columns(2)
         cols[0].metric(t("m_actual_ws", lang), f"{row['Year3_WS']:.1f}",
                        delta=t("vs_pred", lang, d=row["Year3_WS"] - row["Pred_WS"]),
                        delta_color="off")
         cols[1].metric(t("m_dtw", lang), f"{row['Dynamic_Truth_WS']:.2f}")
-        if row["call_correct"]:
-            cols[2].success(t("reality_correct", lang))
-        else:
-            cols[2].error(t("reality_wrong", lang))
         st.caption(t("reality_explain", lang))
 
     facts = []
@@ -155,18 +155,26 @@ def render_llm_report_button(key_prefix: str, row: dict, lang: str):
 
 # ---------------------------------------------------------------- tabs
 
+def persistent_selectbox(container, label, options, default, format_func, name, lang):
+    """選單 key 帶語言，切換語言時選項文字會更新；選取值另存於 session_state 以免切換後被重設。"""
+    saved = st.session_state.get(f"{name}_value", default)
+    index = options.index(saved) if saved in options else options.index(default) if default in options else 0
+    value = container.selectbox(label, options, index=index, format_func=format_func, key=f"{name}_{lang}")
+    st.session_state[f"{name}_value"] = value
+    return value
+
+
 def lookup_tab(lang: str):
     df = decided()
     years = de.list_cohort_years()
     c1, c2 = st.columns([1, 2])
-    year = c1.selectbox(t("cohort", lang), years, index=years.index(2020),
-                        format_func=lambda y: cohort_label(y, lang), key="lookup_year")
+    year = persistent_selectbox(c1, t("cohort", lang), years, 2020,
+                                lambda y: cohort_label(y, lang), "lookup_year", lang)
     cohort = df[df["year_start"] == year].sort_values("DraftRank")
     names = cohort["Player"].tolist()
     picks = dict(zip(cohort["Player"], cohort["DraftRank"].astype(int)))
-    default = names.index("Darius Garland") if "Darius Garland" in names else 0
-    player = c2.selectbox(t("player", lang), names, index=default,
-                          format_func=lambda p: f"#{picks[p]} · {p}", key="lookup_player")
+    player = persistent_selectbox(c2, t("player", lang), names, "Darius Garland",
+                                  lambda p: f"#{picks[p]} · {p}", "lookup_player", lang)
     st.caption(t("cohort_note", lang))
 
     row = de.evaluate_historical_player(int(year), player, df)
@@ -183,8 +191,8 @@ def lookup_tab(lang: str):
 def cohort_tab(lang: str):
     df = decided()
     years = de.list_cohort_years()
-    year = st.selectbox(t("cohort", lang), years, index=years.index(2023),
-                        format_func=lambda y: cohort_label(y, lang), key="cohort_year")
+    year = persistent_selectbox(st, t("cohort", lang), years, 2023,
+                                lambda y: cohort_label(y, lang), "cohort_year", lang)
     d = df[df["year_start"] == year]
     st.markdown(f"#### {t('cohort_title', lang)}")
     st.caption(t("cohort_caption", lang))
@@ -310,7 +318,7 @@ def manual_tab(lang: str):
         c1, c2, c3 = st.columns(3)
         player_name = c1.text_input(t("manual_name", lang), value="")
         compare_year = c2.selectbox(t("manual_compare", lang), years, index=len(years) - 1,
-                                    format_func=lambda y: cohort_label(y, lang))
+                                    format_func=lambda y: cohort_label(y, lang), key=f"manual_year_{lang}")
         draft_rank = c3.number_input(t("manual_pick", lang), min_value=1, max_value=30, value=15)
         position = st.radio(t("manual_pos", lang), POSITIONS, horizontal=True)
 
