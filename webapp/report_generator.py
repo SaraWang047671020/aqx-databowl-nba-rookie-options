@@ -31,11 +31,20 @@ SYSTEM_PROMPT = {
 }
 
 STAGE_NAMES = {
-    "profit": "exercise option - clear surplus",
-    "buffer": "keep - loss within model error",
-    "opportunity": "keep - beats replacement level",
-    "star": "keep - star-power rescue",
-    "reject": "decline option - stop loss",
+    "en": {
+        "profit": "exercise option - clear surplus",
+        "buffer": "keep - loss within model error",
+        "opportunity": "keep - beats replacement level",
+        "star": "keep - star-power rescue",
+        "reject": "decline option - stop loss",
+    },
+    "zh": {
+        "profit": "絕對獲利，建議執行選擇權",
+        "buffer": "統計容錯，建議保留",
+        "opportunity": "機會成本救贖，建議保留",
+        "star": "商業聲量救場，建議保留",
+        "reject": "絕對止損，建議放棄選擇權",
+    },
 }
 
 FIELDS = {
@@ -79,7 +88,7 @@ def generate_scouting_report(row: dict, lang: str = "en") -> str:
         raise ReportGenerationError("pip install openai") from e
 
     payload = {name: _clean(row.get(key)) for key, name in FIELDS.items()}
-    payload["decision_stage"] = STAGE_NAMES[row["stage"]]
+    payload["decision_stage"] = STAGE_NAMES.get(lang, STAGE_NAMES["en"])[row["stage"]]
 
     try:
         client = OpenAI(api_key=api_key)
