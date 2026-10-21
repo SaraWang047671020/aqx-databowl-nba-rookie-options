@@ -25,6 +25,32 @@ SHOOTING_FIELDS = ["FG", "FGA", "FG%", "3P", "3PA", "3P%", "2P%", "2PA", "FT", "
 BOXSCORE_FIELDS = ["ORB", "ORB%", "DRB", "DRB%", "TRB", "TRB%", "AST", "AST%", "STL", "STL%", "BLK", "BLK%", "TOV", "TOV%", "PF", "PTS"]
 ADVANCED_FIELDS = ["PER", "USG%", "OWS", "DWS", "WS", "WS/48", "OBPM", "DBPM", "BPM", "VORP"]
 MAX_REPORTS_PER_SESSION = 5
+REPO_URL = "https://github.com/SaraWang047671020/aqx-databowl-nba-rookie-options"
+CSS = """
+<style>
+.block-container {padding-top: 2.2rem;}
+[data-testid="stMetric"] {border: 1px solid rgba(128,128,128,0.22); border-radius: 12px;
+  padding: 12px 16px; background: rgba(128,128,128,0.05);}
+[data-testid="stMetricValue"] {font-weight: 700;}
+[data-baseweb="tab-list"] {gap: 6px;}
+[data-baseweb="tab"] p {font-size: 1rem; font-weight: 600;}
+.hero {background: linear-gradient(120deg, #0f2a4a 0%, #1d4f8f 55%, #2a78d6 100%); color: #fff;
+  border-radius: 16px; padding: 22px 28px; margin-bottom: 18px;}
+.hero h1 {color: #fff; font-size: 1.9rem; margin: 6px 0 6px 0; padding: 0;}
+.hero p {color: rgba(255,255,255,0.85); margin: 0; max-width: 900px;}
+.hero .badge {display: inline-block; font-size: 0.75rem; letter-spacing: .06em; text-transform: uppercase;
+  background: rgba(255,255,255,0.16); padding: 3px 10px; border-radius: 999px;}
+.hero .stats {display: flex; gap: 28px; flex-wrap: wrap; margin-top: 14px;}
+.hero .stats b {font-size: 1.35rem; display: block; color: #fff;}
+.hero .stats span {font-size: 0.82rem; color: rgba(255,255,255,0.75);}
+.fc-card {border-radius: 16px; padding: 18px 22px; height: 100%;}
+.fc-kicker {font-size: 0.78rem; letter-spacing: .06em; text-transform: uppercase; opacity: .75; font-weight: 600;}
+.fc-big {font-size: 3.6rem; font-weight: 800; line-height: 1.05; margin: 4px 0 2px 0;}
+.fc-big small {font-size: 1.1rem; font-weight: 600; opacity: .7; margin-left: 6px;}
+.fc-line {margin: 4px 0; font-size: 0.98rem;}
+.fc-note {font-size: 0.8rem; opacity: .7; margin-top: 8px;}
+</style>
+"""
 DEFAULTS = {"wi_rmse": de.RMSE_MULTIPLIER, "wi_pct": int(de.STAR_POWER_PERCENTILE * 100),
             "wi_star": de.STAR_RESCUE_MULTIPLIER}
 
@@ -54,7 +80,50 @@ def color_label(color, lang):
 
 # ---------------------------------------------------------------- components
 
-def render_decision_card(row: dict, lang: str):
+def render_header(lang: str, meta: dict):
+    s = de.backtest_summary(decided())
+    st.markdown(
+        f"""<div class="hero"><span class="badge">{t('hero_badge', lang)}</span>
+        <h1>{t('app_title', lang)}</h1><p>{t('app_caption', lang)}</p>
+        <div class="stats">
+          <div><b>{s['n']}</b><span>{t('hero_stat_players', lang)}</span></div>
+          <div><b>{meta['test_r2']:.3f}</b><span>{t('hero_stat_r2', lang)}</span></div>
+          <div><b>{s['hit_rate']:.1%}</b><span>{t('hero_stat_hit', lang)}</span></div>
+          <div><b>+{s['net']:.1f}</b><span>{t('bt_kpi_net', lang)}</span></div>
+        </div></div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_forecast(row: dict, lang: str, show_actual: bool):
+    """預測主視覺：大字顯示預測第三年 WS、誤差區間與門檻差距，右側為數線圖。"""
+    rmse = de.get_model_meta()["test_rmse"]
+    bg, fg = STAGE_STYLE[row["color"]]
+    pred, bar = row["Pred_WS"], row["Dynamic_Truth_WS"]
+    gap = pred - bar
+    if lang == "zh":
+        vs = t("fc_vs_bar", lang, b=bar, d=abs(gap), word=t("fc_above" if gap >= 0 else "fc_below", lang))
+    else:
+        vs = t("fc_vs_bar", lang, b=bar, d=gap)
+    left, right = st.columns([2, 3], gap="medium")
+    left.markdown(
+        f"""<div class="fc-card" style="background:{bg};border:1px solid {fg};">
+        <div class="fc-kicker">{t('fc_kicker', lang)}</div>
+        <div class="fc-big" style="color:{fg};">{pred:.2f}<small>WS</small></div>
+        <div class="fc-line">{t('fc_range', lang, lo=pred - rmse, hi=pred + rmse)}</div>
+        <div class="fc-line"><b>{vs}</b></div>
+        <div class="fc-note">{t('fc_note', lang)}</div></div>""",
+        unsafe_allow_html=True,
+    )
+    with right:
+        st.markdown(f"**{t('fc_strip_title', lang)}**")
+        st.plotly_chart(charts.forecast_strip(row, rmse, lang, show_actual), width="stretch",
+                        config={"displayModeBar": False})
+
+
+def render_decision_card(row: dict, lang: str, show_actual: bool = True):
+    render_forecast(row, lang, show_actual)
+    st.write("")
     bg, fg = STAGE_STYLE[row["color"]]
     st.markdown(
         f"""<div style="background:{bg};border-left:6px solid {fg};padding:14px 18px;border-radius:8px;">
@@ -62,11 +131,10 @@ def render_decision_card(row: dict, lang: str):
         unsafe_allow_html=True,
     )
     st.write("")
-    cols = st.columns(4)
-    cols[0].metric(t("m_pred_ws", lang), f"{row['Pred_WS']:.2f}")
-    cols[1].metric(t("m_value", lang), f"{row['Pred_Salary_Share_Percent']:.2f}%")
-    cols[2].metric(t("m_cost", lang), f"{row['Est_Cost_Percent']:.2f}%")
-    cols[3].metric(t("m_ans", lang), f"{row['Adjusted_Net_Surplus']:+.2f}")
+    cols = st.columns(3)
+    cols[0].metric(t("m_value", lang), f"{row['Pred_Salary_Share_Percent']:.2f}%")
+    cols[1].metric(t("m_cost", lang), f"{row['Est_Cost_Percent']:.2f}%")
+    cols[2].metric(t("m_ans", lang), f"{row['Adjusted_Net_Surplus']:+.2f}")
     if not row.get("has_sentiment", True):
         st.info(t("no_sentiment", lang))
 
@@ -244,6 +312,21 @@ def backtest_tab(lang: str):
         st.markdown(f"**{t('accuracy', lang, a=s['accuracy'])}**")
         st.caption(t("bt_confusion_caption", lang))
 
+    st.markdown(f"##### {t('bt_acc_title', lang)}")
+    st.caption(t("bt_acc_caption", lang))
+    meta = de.get_model_meta()
+    rmse = meta["test_rmse"]
+    seen = df[df["Year3_WS"].notna()]
+    err = (seen["Year3_WS"] - seen["Pred_WS"]).abs()
+    left, right = st.columns([3, 1], gap="large")
+    left.plotly_chart(charts.pred_vs_actual(df, rmse, lang), width="stretch", config={"displayModeBar": False})
+    with right:
+        st.metric(t("bt_acc_within", lang), f"{(err <= rmse).mean():.1%}",
+                  help=t("bt_acc_within_help", lang, k=int((err <= rmse).sum()), n=len(seen)))
+        st.metric(t("bt_acc_mae", lang), f"{err.mean():.2f} WS")
+        st.metric(t("bt_acc_r2", lang), f"{meta['test_r2']:.3f}")
+        st.metric(t("bt_acc_rmse", lang), f"{rmse:.2f} WS")
+
     st.markdown(f"##### {t('bt_red_list', lang)}")
     red = df[df["color"] == "red"].sort_values(["year_start", "DraftRank"])
     table = _player_table(red, lang)
@@ -345,7 +428,7 @@ def manual_tab(lang: str):
 
     if "manual_result" in st.session_state:
         row = st.session_state["manual_result"]
-        render_decision_card(row, lang)
+        render_decision_card(row, lang, show_actual=False)
         render_waterfall(row, lang)
         render_llm_report_button("manual", row, lang)
 
@@ -354,14 +437,13 @@ def main():
     with st.sidebar:
         lang = st.radio("Language / 語言", list(LANGS), format_func=LANGS.get, horizontal=True, key="lang")
 
-    st.title(t("app_title", lang))
-    st.caption(t("app_caption", lang))
-
+    st.markdown(CSS, unsafe_allow_html=True)
     try:
         meta = de.get_model_meta()
     except FileNotFoundError:
         st.error(t("no_model", lang))
         st.stop()
+    render_header(lang, meta)
 
     with st.sidebar:
         st.markdown(f"### {t('model_info', lang)}")
@@ -371,7 +453,7 @@ def main():
         st.markdown(f"**{t('legend_title', lang)}**\n\n{t('legend_body', lang)}")
         st.markdown("---")
         st.caption(t("cohort_note", lang))
-        st.markdown("[GitHub](https://github.com/SaraWang047671020/nba_player_year3_option_predict)")
+        st.markdown(f"[GitHub]({REPO_URL})")
 
     tabs = st.tabs([t(k, lang) for k in ["tab_lookup", "tab_cohort", "tab_backtest", "tab_whatif", "tab_manual"]])
     with tabs[0]:
