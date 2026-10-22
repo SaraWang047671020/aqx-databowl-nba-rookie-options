@@ -61,7 +61,7 @@ export default function About() {
         <section className="chapter">
           <h2 className="h3">{tr("about_limits_t")}</h2>
           <ul className="caveats">
-            {[1, 2, 3].map((i) => <li key={i}>{tr(`about_limit_${i}`)}</li>)}
+            {[4, 1, 2, 3].map((i) => <li key={i}>{tr(`about_limit_${i}`)}</li>)}
           </ul>
         </section>
       </div>

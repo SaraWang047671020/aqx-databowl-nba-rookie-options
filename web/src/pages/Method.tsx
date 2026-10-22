@@ -37,6 +37,22 @@ export default function Method() {
     <>
       <PageHero kicker={tr("nav_method")} title={tr("page_method_t")} desc={tr("page_method_d")} />
       <div className="container page-body narrow">
+        <Chapter icon="decide" title={tr("m_timing_t")}>
+          <p className="body-lg">{tr("m_timing_body")}</p>
+          <div className="table-wrap" style={{ marginTop: 16 }}>
+            <table>
+              <thead>
+                <tr><th>{tr("m_tt_option")}</th><th>{tr("m_tt_window")}</th><th className="num">{tr("m_tt_seen")}</th><th>{tr("m_tt_fit")}</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>{tr("m_tt_y3")}</td><td>{tr("m_tt_y3_w")}</td><td className="num">1</td><td className="muted">{tr("m_tt_y3_fit")}</td></tr>
+                <tr className="row-pick"><td>{tr("m_tt_y4")}</td><td>{tr("m_tt_y4_w")}</td><td className="num">2</td><td>✓ {tr("m_tt_y4_fit")}</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="caption" style={{ marginTop: 8 }}>{tr("m_timing_note")}</p>
+        </Chapter>
+
         <Chapter icon="data" title={tr("m_data_t")}>
           <p className="body-lg">{tr("m_data_body")}</p>
         </Chapter>
@@ -98,7 +114,7 @@ export default function Method() {
         <section className="chapter">
           <h2 className="h3">{tr("m_caveats_t")}</h2>
           <ul className="caveats">
-            {[1, 2, 3, 4].map((i) => <li key={i}>{tr(`m_caveat_${i}`)}</li>)}
+            {[5, 6, 1, 2, 3, 4].map((i) => <li key={i}>{tr(`m_caveat_${i}`)}</li>)}
           </ul>
         </section>
       </div>

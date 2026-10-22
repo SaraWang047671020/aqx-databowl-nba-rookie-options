@@ -21,8 +21,8 @@ export const COPY: Record<string, Entry> = {
   home_title_1: { en: "Keep the rookie,", zh: "留下新秀，" },
   home_title_2: { en: "or cut the loss?", zh: "還是及早止損？" },
   home_sub: {
-    en: "A decision engine for NBA rookie team options. It forecasts a first-round pick's year-3 Win Shares from his first two seasons, prices that output against his contract, and runs a five-gate real-options waterfall to recommend exercise, keep, or decline.",
-    zh: "NBA 新秀選擇權決策引擎：以新秀前兩季數據預測第三年 Win Shares，換算成相對於合約的價值，再以五層實質選擇權瀑布流給出「執行、保留或止損」的建議。",
+    en: "A decision engine for the fourth-year team option on NBA rookie contracts. After a first-round pick's first two seasons, it forecasts his year-3 Win Shares, prices that output against his contract, and runs a five-gate real-options waterfall to recommend exercise, keep, or decline.",
+    zh: "NBA 新秀合約第四年選擇權的決策引擎：在首輪新秀打完前兩季後，預測其第三年 Win Shares，換算成相對於合約的價值，再以五層實質選擇權瀑布流給出「執行、保留或止損」的建議。",
   },
   cta_try: { en: "Look up a player", zh: "查詢球員" },
   cta_method: { en: "How it works", zh: "了解研究方法" },
@@ -37,8 +37,8 @@ export const COPY: Record<string, Entry> = {
   problem_kicker: { en: "The question", zh: "問題" },
   problem_title: { en: "A rookie contract is a cheap option — until it isn't", zh: "新秀合約是一張便宜的選擇權，前提是選對人" },
   problem_body: {
-    en: "First-round picks sign rookie-scale contracts with team options for later seasons. A front office has to decide whether to keep paying long before it knows how the player will develop. Keep a bust and you burn cap space; cut a late bloomer and you hand a rival a bargain. We turn that call into a transparent, testable rule.",
-    zh: "首輪新秀簽的是新秀合約，後續年份由球隊決定是否執行選擇權。球團必須在還看不清球員發展前就做決定：留下水貨會浪費薪資空間，放走大器晚成的球員則等於把便宜好貨送給對手。我們把這個判斷變成透明、可回測的規則。",
+    en: "First-round picks sign rookie-scale contracts: two guaranteed seasons, then team options for seasons three and four, each due a year in advance by October 31. The fourth-year call comes after just two seasons. Keep a bust and you burn cap space; cut a late bloomer and you hand a rival a bargain. We turn that call into a transparent, testable rule.",
+    zh: "首輪新秀合約保障前兩季，第三、四季為球隊選擇權，且都要提前一年、在 10 月 31 日前決定。第四年選擇權只有兩個球季可以觀察：留下水貨會浪費薪資空間，放走大器晚成的球員則等於把便宜好貨送給對手。我們把這個判斷變成透明、可回測的規則。",
   },
 
   how_kicker: { en: "How it works", zh: "運作方式" },
@@ -107,6 +107,25 @@ export const COPY: Record<string, Entry> = {
   page_about_d: { en: "A student research project for the AQX Sports Analytics Data Bowl 4.0. Fully open source.", zh: "為 AQX Sports Analytics Data Bowl 4.0 製作的學生研究專案，完全開放原始碼。" },
 
   // ---- method ----
+  m_timing_t: { en: "0 · Which decision does this model support?", zh: "0 · 這個模型對應哪一個決策？" },
+  m_timing_body: {
+    en: "Under the 2023 CBA, a first-round rookie contract guarantees two seasons; seasons three and four are team options, each exercised a year in advance with an October 31 deadline. Because the model uses a player's first two seasons, its information matches the fourth-year option decision.",
+    zh: "依 2023 年 CBA，首輪新秀合約保障前兩季，第三、四季為球隊選擇權，且都要提前一年決定，期限為 10 月 31 日。本模型使用球員前兩季的數據，資訊條件對應的是第四年選擇權的決策。",
+  },
+  m_tt_option: { en: "Option", zh: "選擇權" },
+  m_tt_window: { en: "Decision window", zh: "行使期間" },
+  m_tt_seen: { en: "Seasons observed", zh: "可觀察季數" },
+  m_tt_fit: { en: "This model", zh: "本模型" },
+  m_tt_y3: { en: "Year-3 option", zh: "第三年選擇權" },
+  m_tt_y3_w: { en: "After the rookie season → Oct 31", zh: "新秀季結束後 → 10 月 31 日" },
+  m_tt_y3_fit: { en: "Not covered (needs a rookie-season-only model)", zh: "未涵蓋（需另建僅含新秀季的模型）" },
+  m_tt_y4: { en: "Year-4 option", zh: "第四年選擇權" },
+  m_tt_y4_w: { en: "After the second season → Oct 31", zh: "第二季結束後 → 10 月 31 日" },
+  m_tt_y4_fit: { en: "Matches: uses the first two seasons", zh: "對應：使用前兩季數據" },
+  m_timing_note: {
+    en: "Year-3 Win Shares is the output in the season the decision is made, used as the leading indicator of whether the year-4 salary is worth paying.",
+    zh: "第三年 Win Shares 是做決策當季的產能，作為判斷第四年薪資是否值得支付的依據。",
+  },
   m_data_t: { en: "1 · Data", zh: "1 · 資料" },
   m_data_body: {
     en: "Box-score and advanced stats come from Kaggle's NBA/ABA/BAA dataset (Basketball-Reference). For every player entering the league from 2000 to 2023 we average his first two seasons and label it with his year-3 Win Shares. Draft position and college data fill gaps for second-rounders.",
@@ -119,8 +138,8 @@ export const COPY: Record<string, Entry> = {
   },
   m_model_t: { en: "3 · Forecasting year-3 Win Shares", zh: "3 · 預測第三年 Win Shares" },
   m_model_body: {
-    en: "Six regressors were compared. Lasso was selected for its accuracy and the smallest train–test gap: 46 features, α ≈ 0.049, test R² 0.577, RMSE 1.79 WS (1,001 training / 251 test players). Historical forecasts are out-of-sample: each cohort is predicted by a model that never saw it.",
-    zh: "比較 6 種迴歸模型後選用 Lasso，因為準確度佳且訓練與測試落差最小：46 項特徵、α ≈ 0.049、測試集 R² 0.577、RMSE 1.79 WS（訓練 1,001 人、測試 251 人）。歷史預測皆為樣本外：每個梯次都由沒看過該梯次的模型預測。",
+    en: "Six regressors were compared. Lasso was selected for its accuracy and the smallest train–test gap: 46 features, α ≈ 0.049, test R² 0.577, RMSE 1.79 WS (1,001 training / 251 test players). Historical forecasts are re-trained year by year and exclude the cohort being predicted.",
+    zh: "比較 6 種迴歸模型後選用 Lasso，因為準確度佳且訓練與測試落差最小：46 項特徵、α ≈ 0.049、測試集 R² 0.577、RMSE 1.79 WS（訓練 1,001 人、測試 251 人）。歷史預測逐年重新訓練，預測各梯次時皆排除該梯次。",
   },
   m_compare_caption: {
     en: "Original comparison (indicative: models were not all run on identical data versions and splits).",
@@ -162,6 +181,14 @@ export const COPY: Record<string, Entry> = {
     en: "The Star Power Index measures relative media buzz; it has not been validated against real revenue.",
     zh: "商業聲量指數衡量的是相對媒體聲量，尚未與實際營收驗證。",
   },
+  m_caveat_5: {
+    en: "Decision timing: two seasons of data match the fourth-year option. The third-year option is due after only one season and would need a model built on rookie-season data alone.",
+    zh: "決策時點：前兩季數據對應第四年選擇權；第三年選擇權在新秀季後就要決定，需以僅含新秀季的數據另建模型。",
+  },
+  m_caveat_6: {
+    en: "Historical forecasts exclude the target cohort but may still be trained on later cohorts, so the backtest is retrospective, not a strict test using only information available at the time.",
+    zh: "歷史預測雖排除目標梯次，仍可能使用較晚年份的資料；因此回測屬回溯分析，不能視為只使用當時已知資訊的完整時間外驗證。",
+  },
   m_caveat_4: {
     en: "A call is scored by whether the player reached the replacement bar, not by what the team actually did.",
     zh: "回測以球員是否達到機會成本基準評分，不等同於球團的實際決定。",
@@ -193,6 +220,10 @@ export const COPY: Record<string, Entry> = {
   about_limits_t: { en: "Limitations and next steps", zh: "限制與未來方向" },
   about_limit_1: { en: "Year-3 Win Shares is a single, noisy target; role and minutes changes are not modeled.", zh: "第三年 Win Shares 是單一且有雜訊的目標，未考慮角色與上場時間的變化。" },
   about_limit_2: { en: "Contract cost uses a smooth approximation of the rookie scale, not exact CBA salaries.", zh: "合約成本採新秀薪資表的平滑近似，並非實際 CBA 金額。" },
+  about_limit_4: {
+    en: "The model matches the fourth-year option decision; the third-year option (after one season) would need a separate rookie-season model.",
+    zh: "本模型對應第四年選擇權；第三年選擇權（一季後決定）需另建僅含新秀季的模型。",
+  },
   about_limit_3: { en: "Injury risk is not discounted in the main analysis; games-played features stay inside the model.", zh: "主分析未另扣傷病風險，出賽場次等特徵仍保留在模型中。" },
   about_live_t: { en: "Also available", zh: "其他版本" },
   about_live_body: { en: "The original Streamlit version of this app is still online as a backup.", zh: "原本的 Streamlit 版網站仍在線上，作為備用。" },

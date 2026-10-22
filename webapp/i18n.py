@@ -46,7 +46,7 @@ STRINGS = {
                   "zh": "比合約門檻 {b:.2f} WS {word} {d:.2f} WS"},
     "fc_above": {"en": "above", "zh": "高出"},
     "fc_below": {"en": "below", "zh": "低了"},
-    "fc_note": {"en": "Forecast uses rookie-season stats only — year 3 is never seen by the model.",
+    "fc_note": {"en": "Forecast uses the first two seasons only — year 3 is never seen by the model.",
                 "zh": "僅用新秀前兩季數據預測，模型完全沒看過第三年的結果。"},
     "fc_strip_title": {"en": "Where the forecast lands", "zh": "預測落點"},
     "fc_bar": {"en": "Bar", "zh": "門檻"},
@@ -244,10 +244,10 @@ STRINGS = {
         "zh": "輸入球員前兩季平均之場均與進階數據。",
     },
     "manual_model_note": {
-        "en": "Note: this tab uses one model trained on every cohort. Historical lookups use the research's "
-              "out-of-sample forecasts (each cohort predicted by a model that never saw it), so entering a past "
-              "player's stats here gives a somewhat different number.",
-        "zh": "注意：此頁使用以所有梯次訓練的單一模型；「球員查詢」則採研究的樣本外預測（每個梯次由沒看過該梯次的模型預測），"
+        "en": "Note: this tab uses one model trained on every cohort. Historical lookups use the research's yearly "
+              "re-trained forecasts, in which each cohort is predicted by a model that excludes that cohort, so "
+              "entering a past player's stats here gives a somewhat different number.",
+        "zh": "注意：此頁使用以所有梯次訓練的單一模型；「球員查詢」則採研究逐年重新訓練的預測（預測各梯次時排除該梯次），"
               "因此在這裡輸入歷史球員的數據，預測值會與查詢頁略有不同。",
     },
     "manual_name": {"en": "Player name", "zh": "球員姓名"},
