@@ -206,6 +206,24 @@ $$Net\ Value\ Surplus = Adjusted\ Pred\ Salary\ Percent - Est\ Cost\ Percent$$
 - **✍️ 輸入新球員**：輸入前兩季數據與選秀順位，即時預測與決策
 - **🧠 AI 球探報告**：串接 OpenAI API（預設 `gpt-5-mini`），依決策結果生成 3–5 句球探報告（`webapp/report_generator.py`）
 
+### Vercel 版（`web/`）
+
+`web/` 是同一個網站以 React + TypeScript 重寫的靜態版本，部署在 Vercel。除了 AI 報告以外，所有計算都在瀏覽器完成：
+
+- `web/scripts/export_data.py`：把研究樣本、Lasso 模型（中位數補值 → 標準化 → 係數）與介面文字匯出成 JSON，並檢查匯出的線性公式與 scikit-learn 模型預測一致。
+- `web/src/lib/engine.ts`：移植瀑布流、回測與參數模擬邏輯。`npm run verify` 會與 Python 版逐項比對：329 人決策、所有回測指標、手動輸入預測、0.5 倍容錯（68 人止損）都必須一致。
+- `web/api/report.ts`：唯一的伺服器端程式，是一個 Vercel Function，從環境變數 `OPENAI_API_KEY` 讀取金鑰呼叫 OpenAI，金鑰不會傳到瀏覽器。
+
+```bash
+cd web
+npm install
+cp .env.example .env.local   # 填入 OpenAI 金鑰（AI 報告用）
+npm run dev                  # http://localhost:5173
+npm run verify               # 比對瀏覽器端與 Python 版結果
+```
+
+部署方式：在 Vercel 匯入此 GitHub repo，**Root Directory** 設為 `web`，並在 Environment Variables 加上 `OPENAI_API_KEY`。
+
 ---
 
 ## 專案結構

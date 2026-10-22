@@ -214,6 +214,24 @@ Accuracy is 66.27% for the earlier 166 players and 69.29% for the later 140. Thi
 
 "Cohort" means the calendar year the rookie season ended: the 2020 cohort is the 2019 draft class.
 
+### Vercel version (`web/`)
+
+`web/` is the same app rebuilt as a static React + TypeScript site for Vercel. Everything except the AI report runs in the browser:
+
+- `web/scripts/export_data.py` exports the study sample, the Lasso pipeline (median imputation → standardization → coefficients) and the UI text to JSON. It asserts that the exported linear formula reproduces the scikit-learn pipeline.
+- `web/src/lib/engine.ts` ports the waterfall, backtest and what-if logic. `npm run verify` checks it against the Python version: all 329 decisions, every backtest metric, manual-player predictions and the 0.5× sensitivity case (68 declines) must match.
+- `web/api/report.ts` is the only server code: a Vercel Function that calls OpenAI with the key from the `OPENAI_API_KEY` environment variable, so the key never reaches the browser.
+
+```bash
+cd web
+npm install
+cp .env.example .env.local   # add your OpenAI key for the AI report
+npm run dev                  # http://localhost:5173
+npm run verify               # browser engine vs. Python results
+```
+
+To deploy, import the GitHub repo in Vercel, set **Root Directory** to `web`, and add `OPENAI_API_KEY` under Environment Variables.
+
 ---
 
 ## Repository structure
