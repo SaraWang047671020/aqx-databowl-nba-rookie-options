@@ -189,6 +189,7 @@ export const COPY: Record<string, Entry> = {
     zh: "以 React + TypeScript 製作並部署在 Vercel。模型與完整決策引擎都在你的瀏覽器中執行，並與 Python 研究程式逐一比對（329 人決策完全一致）。只有 AI 球探報告會呼叫伺服器函式（使用 OpenAI）。",
   },
   about_data_t: { en: "Data sources", zh: "資料來源" },
+  about_photos_t: { en: "Photo credits", zh: "照片出處" },
   about_limits_t: { en: "Limitations and next steps", zh: "限制與未來方向" },
   about_limit_1: { en: "Year-3 Win Shares is a single, noisy target; role and minutes changes are not modeled.", zh: "第三年 Win Shares 是單一且有雜訊的目標，未考慮角色與上場時間的變化。" },
   about_limit_2: { en: "Contract cost uses a smooth approximation of the rookie scale, not exact CBA salaries.", zh: "合約成本採新秀薪資表的平滑近似，並非實際 CBA 金額。" },

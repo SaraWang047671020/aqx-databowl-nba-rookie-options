@@ -118,12 +118,18 @@ button, input, select { font: inherit; color: inherit; }
 .nav-drawer { display: none; }
 
 /* ---------------------------------------------------------------- backdrops (court art) */
-.backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #133260 100%); }
+/* 選用照片層：檔案不存在時瀏覽器只會略過，畫面維持插畫版 */
+.backdrop-photo { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.55; filter: saturate(0.85); }
+.backdrop-hero .backdrop-photo { background-image: url("/images/hero.jpg"); }
+.backdrop-band .backdrop-photo { background-image: url("/images/band.jpg"); background-position: center 40%; }
+/* 深色漸層壓在照片上，確保白字清楚可讀 */
 .backdrop-glow { position: absolute; inset: 0;
   background:
-    radial-gradient(600px 380px at 82% 18%, rgba(240,124,34,0.28), transparent 70%),
-    radial-gradient(700px 500px at 10% 100%, rgba(42,120,214,0.35), transparent 70%),
-    linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #133260 100%); }
+    radial-gradient(600px 380px at 82% 18%, rgba(240,124,34,0.26), transparent 70%),
+    radial-gradient(700px 500px at 10% 100%, rgba(42,120,214,0.32), transparent 70%),
+    linear-gradient(100deg, rgba(8,20,42,0.94) 0%, rgba(8,20,42,0.78) 45%, rgba(15,37,70,0.55) 100%); }
 .backdrop-court { position: absolute; color: rgba(255,255,255,0.13); }
 .backdrop-hero .backdrop-court { width: 1500px; left: 50%; bottom: -260px; transform: translateX(-38%) perspective(900px) rotateX(58deg); }
 .backdrop-band .backdrop-court { width: 1300px; right: -260px; top: -40px; transform: perspective(800px) rotateX(62deg) rotateZ(-8deg); opacity: .8; }

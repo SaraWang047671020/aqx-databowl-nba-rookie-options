@@ -35,10 +35,14 @@ export function Court(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** 主視覺背景：透視球場 + 光暈 */
+/**
+ * 主視覺背景：照片（選用）+ 深色漸層 + 透視球場 + 光暈。
+ * 照片放在 public/images/hero.jpg（首頁）與 band.jpg（各頁頁首），檔案不存在時只顯示插畫。
+ */
 export function CourtBackdrop({ variant = "hero" }: { variant?: "hero" | "band" }) {
   return (
     <div className={`backdrop backdrop-${variant}`} aria-hidden>
+      <div className="backdrop-photo" />
       <div className="backdrop-glow" />
       <Court className="backdrop-court" />
       <div className="backdrop-grain" />

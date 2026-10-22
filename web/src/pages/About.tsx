@@ -1,6 +1,7 @@
 import { Icons } from "../components/Art";
 import { PageHero, REPO_URL, STREAMLIT_URL } from "../components/Shell";
 import { useT } from "../components/ui";
+import { PHOTO_CREDITS } from "../lib/photos";
 
 const SOURCES = [
   { name: "Kaggle — NBA/ABA/BAA stats", url: "https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats" },
@@ -45,6 +46,17 @@ export default function About() {
             {SOURCES.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.name}</a></li>)}
           </ul>
         </section>
+
+        {PHOTO_CREDITS.length > 0 && (
+          <section className="chapter">
+            <h2 className="h3">{tr("about_photos_t")}</h2>
+            <ul className="caveats">
+              {PHOTO_CREDITS.map((c) => (
+                <li key={c.file}><a href={c.url} target="_blank" rel="noreferrer">{c.author}</a> · {c.source} · {c.license}</li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="chapter">
           <h2 className="h3">{tr("about_limits_t")}</h2>
