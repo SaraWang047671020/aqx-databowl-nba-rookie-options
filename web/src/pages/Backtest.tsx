@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import Plot from "../components/Plot";
+import { PageHero } from "../components/Shell";
 import { Metric, Section, useT, useUi } from "../components/ui";
 import { predVsActual, yearlyStacked } from "../lib/charts";
 import { MODEL_META, RMSE, summarize, type Decided } from "../lib/engine";
@@ -19,8 +20,9 @@ export default function Backtest({ decided }: { decided: Decided[] }) {
   const red = decided.filter((p) => p.color === "red");
 
   return (
-    <div>
-      <h2 style={{ margin: "0 0 12px", fontSize: "1.2rem" }}>{tr("bt_title")}</h2>
+    <>
+      <PageHero kicker={tr("nav_results")} title={tr("page_results_t")} desc={tr("page_results_d")} />
+      <div className="container page-body">
       <div className="grid-4">
         <Metric label={tr("bt_kpi_split")} value={`${s.blue} / ${s.green} / ${s.red}`} />
         <Metric label={tr("bt_kpi_hit")} value={pct(s.hitRate)} help={tr("bt_kpi_hit_help", { b: s.redBelow, n: s.redLabeled })} />
@@ -59,6 +61,7 @@ export default function Backtest({ decided }: { decided: Decided[] }) {
       <Section title={tr("bt_red_list")}>
         <PlayerTable rows={red} cohort decision={false} outcome />
       </Section>
-    </div>
+      </div>
+    </>
   );
 }

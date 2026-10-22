@@ -3,6 +3,7 @@
  * 本檔只補網頁版新增或需改寫的字串。佔位符沿用 Python format 語法，例如 {v:+.2f}、{a:.1%}。
  */
 import base from "../data/strings.json" with { type: "json" };
+import { COPY } from "./copy";
 
 export type Lang = "en" | "zh";
 type Entry = { en: string; zh?: string };
@@ -40,7 +41,7 @@ const EXTRA: Record<string, Entry> = {
   wi_hint: { en: "Changes are computed instantly in your browser.", zh: "所有重算都在你的瀏覽器即時完成。" },
 };
 
-const STRINGS: Record<string, Entry> = { ...(base as Record<string, Entry>), ...EXTRA };
+const STRINGS: Record<string, Entry> = { ...(base as Record<string, Entry>), ...EXTRA, ...COPY };
 
 const SPEC = /\{(\w+)(?::([+]?)(?:\.(\d+))?([fd%]))?\}/g;
 

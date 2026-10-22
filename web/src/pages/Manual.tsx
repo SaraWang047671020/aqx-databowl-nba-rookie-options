@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHero } from "../components/Shell";
 import { DecisionCard, ReportButton, useT, Waterfall } from "../components/ui";
 import example from "../data/example.json";
 import { COHORT_YEARS, evaluateManual, type Decided } from "../lib/engine";
@@ -42,8 +43,9 @@ export default function Manual() {
   }
 
   return (
-    <div>
-      <h2 style={{ margin: "0 0 4px", fontSize: "1.2rem" }}>{tr("manual_title")}</h2>
+    <>
+      <PageHero kicker={tr("nav_new")} title={tr("page_new_t")} desc={tr("page_new_d")} />
+      <div className="container page-body">
       <p className="caption">{tr("manual_caption")} {tr("manual_blank")}</p>
       <p className="caption">{tr("manual_model_note")}</p>
       <form className="card stack" onSubmit={submit}>
@@ -105,6 +107,7 @@ export default function Manual() {
           <ReportButton p={result} />
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

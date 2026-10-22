@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Plot from "../components/Plot";
+import { PageHero } from "../components/Shell";
 import { Dot, Metric, Section, Table, useT, useUi, type Column } from "../components/ui";
 import { sensitivityLine, type SweepRow } from "../lib/charts";
 import { classify, DEFAULT_PARAMS, summarize, type Decided, type Light, type Params } from "../lib/engine";
@@ -67,8 +68,10 @@ export default function WhatIf({ base }: { base: Decided[] }) {
   ];
 
   return (
-    <div>
-      <h2 style={{ margin: "0 0 4px", fontSize: "1.2rem" }}>{tr("wi_title")}</h2>
+    <>
+      <PageHero kicker={tr("nav_simulator")} title={tr("page_simulator_t")} desc={tr("page_simulator_d")} />
+      <div className="container page-body">
+      <h2 className="h3" style={{ margin: "0 0 4px" }}>{tr("wi_title")}</h2>
       <p className="caption">{tr("wi_caption")} {tr("wi_hint")}</p>
       <div className="grid-3">
         <Slider label={tr("wi_rmse")} help={tr("wi_rmse_help")} value={params.rmseMultiplier} min={0.5} max={2} step={0.05}
@@ -99,6 +102,7 @@ export default function WhatIf({ base }: { base: Decided[] }) {
       <Section title={tr("wi_changed")}>
         {changed.length === 0 ? <p className="caption">{tr("wi_none_changed")}</p> : <Table rows={changed} columns={columns} />}
       </Section>
-    </div>
+      </div>
+    </>
   );
 }
