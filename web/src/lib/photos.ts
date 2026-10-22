@@ -10,4 +10,19 @@ export interface PhotoCredit {
   license: string; // 例如 "Unsplash License"、"CC BY 2.0"
 }
 
-export const PHOTO_CREDITS: PhotoCredit[] = [];
+export const PHOTO_CREDITS: PhotoCredit[] = [
+  {
+    file: "hero.jpg",
+    author: "Corleone Brown",
+    source: "Pexels",
+    url: "https://www.pexels.com/photo/huge-arena-with-crowd-of-people-4500123/",
+    license: "Pexels License",
+  },
+  {
+    file: "band.jpg",
+    author: "Davide Aracri",
+    source: "Unsplash",
+    url: "https://unsplash.com/photos/a-basketball-going-through-the-hoop-in-a-basketball-court-YF9YeTmhy6o",
+    license: "Unsplash License",
+  },
+];
