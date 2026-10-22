@@ -243,6 +243,13 @@ STRINGS = {
         "en": "Enter a player's per-game and advanced stats averaged over his first two seasons.",
         "zh": "輸入球員前兩季平均之場均與進階數據。",
     },
+    "manual_model_note": {
+        "en": "Note: this tab uses one model trained on every cohort. Historical lookups use the research's "
+              "out-of-sample forecasts (each cohort predicted by a model that never saw it), so entering a past "
+              "player's stats here gives a somewhat different number.",
+        "zh": "注意：此頁使用以所有梯次訓練的單一模型；「球員查詢」則採研究的樣本外預測（每個梯次由沒看過該梯次的模型預測），"
+              "因此在這裡輸入歷史球員的數據，預測值會與查詢頁略有不同。",
+    },
     "manual_name": {"en": "Player name", "zh": "球員姓名"},
     "manual_compare": {"en": "Compare against cohort (salary cap, replacement bar, star-power bar)",
                        "zh": "比較梯次（薪資帽、機會成本基準、聲量門檻）"},

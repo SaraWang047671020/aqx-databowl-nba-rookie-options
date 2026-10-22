@@ -26,6 +26,7 @@ TOTAL_GAMES = 1230
 RMSE_MULTIPLIER = 1.25  # 統計容錯緩衝倍數（買權時間價值）
 STAR_RESCUE_MULTIPLIER = 1.5  # 商業聲量救場的容錯倍數
 STAR_POWER_PERCENTILE = 0.70  # 同梯次 PR70 及格線
+VET_MIN_COST_PERCENT = 1.8  # 底薪老將約佔薪資帽 1.8%，機會成本基準的下限
 
 STAGES = ["profit", "buffer", "opportunity", "star", "reject"]
 STAGE_COLOR = {"profit": "blue", "buffer": "green", "opportunity": "green", "star": "green", "reject": "red"}
@@ -105,6 +106,12 @@ def compute_financial_metrics(pred_ws: float, draft_rank: float, salary_cap: flo
         "Est_Cost_Percent": est_cost_percent,
         "Net_Surplus_Percent": pred_salary_share_percent - est_cost_percent,
     }
+
+
+def dynamic_truth_ws(est_cost_percent: float, bri_factor: float) -> float:
+    """機會成本基準（同 scrape_player_news.ipynb）：合約成本換算成 WS，下限為底薪老將的產能。"""
+    ws_value_percent = TEAM_COUNT * bri_factor / TOTAL_GAMES * 100
+    return round(max(est_cost_percent, VET_MIN_COST_PERCENT) / ws_value_percent, 2)
 
 
 def decide_stage(ans, pred_ws, dynamic_truth_ws, star_power_index, star_power_floor, rmse_buffer,
@@ -234,13 +241,13 @@ def evaluate_manual_player(player_stats: dict, draft_rank: float, draft_year: in
     if not ref_year.empty:
         salary_cap = float(ref_year.iloc[0]["Salary_Cap_At_Start"])
         bri_factor = float(ref_year.iloc[0]["BRI_Factor"])
-        dtw = ref_year.iloc[0].get("Dynamic_Truth_WS")
-        dynamic_truth_ws = float(dtw) if pd.notna(dtw) else 2.5
     else:
-        salary_cap, bri_factor, dynamic_truth_ws = 136.0, 0.5, 2.5
+        salary_cap, bri_factor = 136.0, 0.5
 
     pred_ws = predict_ws(player_stats)
     metrics = compute_financial_metrics(pred_ws, draft_rank, salary_cap, bri_factor)
+    # 機會成本基準依選秀順位而定（不能直接取梯次第一列）
+    replacement_ws = dynamic_truth_ws(metrics["Est_Cost_Percent"], bri_factor)
 
     spi = lookup_star_power(player_stats.get("Player", ""))
     cohort = classify_frame(load_study_sample())
@@ -253,7 +260,7 @@ def evaluate_manual_player(player_stats: dict, draft_rank: float, draft_year: in
         "Player": player_stats.get("Player", ""),
         "year_start": draft_year,
         "DraftRank": draft_rank,
-        "Dynamic_Truth_WS": dynamic_truth_ws,
+        "Dynamic_Truth_WS": replacement_ws,
         "Star_Power_Index": spi,
         "Star_Power_Index_Filled": spi if spi is not None else 0.0,
         "has_sentiment": spi is not None,
@@ -263,7 +270,7 @@ def evaluate_manual_player(player_stats: dict, draft_rank: float, draft_year: in
         "Year3_WS": np.nan,
         "has_year3": False,
     }
-    row["stage"] = decide_stage(row["Adjusted_Net_Surplus"], pred_ws, dynamic_truth_ws,
+    row["stage"] = decide_stage(row["Adjusted_Net_Surplus"], pred_ws, replacement_ws,
                                 row["Star_Power_Index_Filled"], star_power_floor, rmse_buffer)
     row["color"] = STAGE_COLOR[row["stage"]]
     return row

@@ -396,6 +396,7 @@ def whatif_tab(lang: str):
 def manual_tab(lang: str):
     st.markdown(f"#### {t('manual_title', lang)}")
     st.caption(t("manual_caption", lang))
+    st.caption(t("manual_model_note", lang))
     years = de.list_cohort_years()
     with st.form("manual_player_form"):
         c1, c2, c3 = st.columns(3)

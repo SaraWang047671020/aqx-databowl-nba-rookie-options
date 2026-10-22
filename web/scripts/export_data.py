@@ -51,13 +51,14 @@ def main():
     decided = de.classify_frame(study)
     norm = pd.read_csv(de.NORMALIZED_PATH)
     manual_cases = []
-    for name, year, pick in [("Victor Wembanyama", 2023, 1), ("Test Player", 2018, 22)]:
+    for name, year, pick in [("Victor Wembanyama", 2023, 1), ("Test Player", 2018, 22), ("Late Pick", 2016, 30)]:
         src = norm[norm["year_start"] == year].iloc[3]
         stats = {c: clean(src[c]) for c in de.get_feature_cols()}
         r = de.evaluate_manual_player({**stats, "Player": name}, draft_rank=pick, draft_year=year)
         manual_cases.append({"name": name, "year": year, "pick": pick, "stats": stats,
                              "pred_ws": r["Pred_WS"], "ans": r["Adjusted_Net_Surplus"], "stage": r["stage"],
-                             "floor": r["Star_Power_Floor"], "spi": r["Star_Power_Index"]})
+                             "floor": r["Star_Power_Floor"], "spi": r["Star_Power_Index"],
+                             "dtw": r["Dynamic_Truth_WS"]})
     dump("expected.json", {
         "stages": {f"{r.year_start}|{r.Player}": r.stage for r in decided.itertuples()},
         "summary": {k: clean(v) for k, v in de.backtest_summary(decided).items()},
@@ -89,12 +90,7 @@ def main():
         if ref.empty:
             continue
         r = ref.iloc[0]
-        dtw = r.get("Dynamic_Truth_WS")
-        refs[str(year)] = {
-            "salary_cap": float(r["Salary_Cap_At_Start"]),
-            "bri_factor": float(r["BRI_Factor"]),
-            "dtw": float(dtw) if pd.notna(dtw) else 2.5,
-        }
+        refs[str(year)] = {"salary_cap": float(r["Salary_Cap_At_Start"]), "bri_factor": float(r["BRI_Factor"])}
     dump("refs.json", refs)
 
     # 商業聲量查詢表（同 lookup_star_power：同名取最後一筆非缺值）

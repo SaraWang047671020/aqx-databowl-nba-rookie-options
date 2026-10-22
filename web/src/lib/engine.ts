@@ -14,6 +14,7 @@ export const TOTAL_GAMES = 1230;
 export const RMSE_MULTIPLIER = 1.25;
 export const STAR_RESCUE_MULTIPLIER = 1.5;
 export const STAR_POWER_PERCENTILE = 0.7;
+export const VET_MIN_COST_PERCENT = 1.8; // 底薪老將約佔薪資帽 1.8%，機會成本基準的下限
 export const STUDY_YEARS: [number, number] = [2013, 2023];
 export const RMSE: number = model.test_rmse;
 
@@ -213,21 +214,28 @@ export function costPercent(pick: number): number {
   return pick >= 1 && pick <= 30 ? 8.0 - (pick - 1) * (6.5 / 29) : 1.1;
 }
 
+/** 機會成本基準（同 scrape_player_news.ipynb）：合約成本換算成 WS，下限為底薪老將的產能。 */
+export function dynamicTruthWs(costPct: number, briFactor: number): number {
+  const wsValuePercent = TEAM_COUNT * briFactor / TOTAL_GAMES * 100;
+  return Math.round(Math.max(costPct, VET_MIN_COST_PERCENT) / wsValuePercent * 100) / 100;
+}
+
 export function lookupStarPower(name: string): number | null {
   const v = (spiTable as Record<string, number>)[name.trim().toLowerCase()];
   return v === undefined ? null : v;
 }
 
 export function evaluateManual(name: string, stats: Record<string, number>, pick: number, year: number): Decided {
-  const ref = (refs as Record<string, { salary_cap: number; bri_factor: number; dtw: number }>)[String(year)]
-    ?? { salary_cap: 136.0, bri_factor: 0.5, dtw: 2.5 };
+  const ref = (refs as Record<string, { salary_cap: number; bri_factor: number }>)[String(year)]
+    ?? { salary_cap: 136.0, bri_factor: 0.5 };
   const predWs = predictWs(stats);
   const valuePerWs = (ref.salary_cap * TEAM_COUNT * ref.bri_factor) / TOTAL_GAMES;
   const spi = lookupStarPower(name);
   const raw: RawPlayer = {
     Player: name, year_start: year, DraftRank: pick, Pred_WS: predWs, Year3_WS: null,
     Pred_Salary_Share_Percent: (predWs * valuePerWs / ref.salary_cap) * 100,
-    Est_Cost_Percent: costPercent(pick), Dynamic_Truth_WS: ref.dtw, BRI_Factor: ref.bri_factor,
+    Est_Cost_Percent: costPercent(pick), Dynamic_Truth_WS: dynamicTruthWs(costPercent(pick), ref.bri_factor),
+    BRI_Factor: ref.bri_factor,
     Star_Power_Index: spi, Outcome_Label: null, year_3: null, year_4: null,
   };
   const floor = cohortFloors(STAR_POWER_PERCENTILE).get(year) ?? 0;

@@ -45,6 +45,7 @@ export default function Manual() {
     <div>
       <h2 style={{ margin: "0 0 4px", fontSize: "1.2rem" }}>{tr("manual_title")}</h2>
       <p className="caption">{tr("manual_caption")} {tr("manual_blank")}</p>
+      <p className="caption">{tr("manual_model_note")}</p>
       <form className="card stack" onSubmit={submit}>
         <div className="grid-3">
           <div className="field">

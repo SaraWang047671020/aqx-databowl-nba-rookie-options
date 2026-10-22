@@ -31,9 +31,9 @@ for (const [k, got, want] of pairs) {
 for (const c of expected.manual) {
   const r = evaluateManual(c.name, c.stats as unknown as Record<string, number>, c.pick, c.year);
   const ok = Math.abs(r.Pred_WS - c.pred_ws) < 1e-9 && Math.abs(r.ans - c.ans) < 1e-9 && r.stage === c.stage
-    && Math.abs(r.floor - c.floor) < 1e-12 && (r.Star_Power_Index ?? null) === (c.spi ?? null);
+    && Math.abs(r.floor - c.floor) < 1e-12 && Math.abs(r.Dynamic_Truth_WS - c.dtw) < 1e-9 && (r.Star_Power_Index ?? null) === (c.spi ?? null);
   if (!ok) bad++;
-  console.log(`${ok ? "ok " : "BAD"} manual ${c.name}: pred ${r.Pred_WS.toFixed(4)} stage ${r.stage} (python ${c.pred_ws.toFixed(4)} ${c.stage})`);
+  console.log(`${ok ? "ok " : "BAD"} manual ${c.name}: pred ${r.Pred_WS.toFixed(4)} stage ${r.stage} bar ${r.Dynamic_Truth_WS} (python ${c.dtw}, ${c.pred_ws.toFixed(4)} ${c.stage})`);
 }
 const tight = summarize(classify({ rmseMultiplier: 0.5, starPercentile: 0.7, starMultiplier: 1.5 }));
 const tightOk = tight.red === 68;
