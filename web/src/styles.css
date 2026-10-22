@@ -399,3 +399,52 @@ details.fold > div { padding: 4px 14px 14px; }
   .hero-home { padding-top: 64px; }
   .badge-light { margin-left: 0; }
 }
+
+/* ---------------------------------------------------------------- scouting report */
+.report-cta { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.report-cta h3 { margin: 0 0 2px; }
+.rpt-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); }
+.rpt-verdict { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; padding: 10px 16px; border-radius: 12px; border: 1px solid; border-left-width: 5px; font-weight: 800; color: #fff; backdrop-filter: blur(6px); }
+.rpt-doc { max-width: 980px; }
+.rpt-generate { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 8px; }
+.rpt-generate p { margin: 0; color: var(--text-2); max-width: 560px; }
+.rpt-sec { padding: 28px 0; border-bottom: 1px solid var(--border); }
+.rpt-sec > header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.rpt-sec > header h2, .rpt-method h2 { margin: 0; font-size: 1.35rem; font-weight: 800; }
+.rpt-n { font-family: var(--display); font-weight: 800; font-size: 1.5rem; color: var(--accent); line-height: 1; }
+.ai-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; font-weight: 800; letter-spacing: .08em; color: var(--actual); background: color-mix(in srgb, var(--actual) 12%, transparent); border-radius: 999px; padding: 2px 8px; }
+.rpt-headline { font-family: var(--display); font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; line-height: 1.15; margin: 0 0 10px; }
+:root:lang(zh-Hant) .rpt-headline { font-weight: 900; }
+.rpt-body { margin: 0; font-size: 1.02rem; line-height: 1.8; color: var(--text-2); }
+.sw-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+.sw { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--border); background: var(--surface); }
+.sw h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: .06em; }
+.sw-good h3 { color: var(--green); }
+.sw-bad h3 { color: var(--red); }
+.sw ul, .rpt-list { margin: 0; padding-left: 20px; color: var(--text-2); line-height: 1.7; }
+.sw li + li, .rpt-list li + li { margin-top: 6px; }
+.rpt-bottom { border: 1px solid; border-left-width: 5px; border-radius: 14px; padding: 16px 18px; }
+.rpt-bottom p { margin: 0; font-size: 1.08rem; font-weight: 700; line-height: 1.7; }
+.rpt-method { border-bottom: 0; }
+.skeleton { display: flex; flex-direction: column; gap: 10px; }
+.skeleton i { display: block; height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--surface-2), var(--border-strong), var(--surface-2)); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.spinner-dark { border-color: var(--border-strong); border-top-color: var(--accent); }
+@media (max-width: 700px) { .sw-grid { grid-template-columns: minmax(0,1fr); } }
+
+/* 列印／存成 PDF：只留報告內容，白底黑字 */
+@media print {
+  :root { --bg: #fff; --surface: #fff; --surface-2: #f4f6f9; --text: #000; --text-2: #222; --muted: #555; --shadow: none; color-scheme: light; }
+  body { background: #fff; font-size: 12px; }
+  .nav, .site-footer, .no-print, .report-cta { display: none !important; }
+  .page-hero { color: #000; padding: 0 0 12px; }
+  .page-hero .backdrop { display: none; }
+  .page-hero h1, .page-hero p, .rpt-verdict { color: #000; }
+  .eyebrow { color: #b4570c; }
+  .rpt-doc { max-width: none; padding: 0; }
+  .rpt-sec { break-inside: avoid; padding: 14px 0; }
+  .card, .metric, .gate, .sw, .table-wrap { box-shadow: none; }
+  .container { max-width: none; padding: 0; }
+  @page { margin: 14mm; }
+}

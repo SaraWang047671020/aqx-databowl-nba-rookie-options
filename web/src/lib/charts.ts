@@ -83,7 +83,7 @@ function byColor(df: Decided[], color: Light) {
 }
 
 /** X＝合約成本，Y＝預期價值；虛線上方為預期獲利。 */
-export function cohortScatter(df: Decided[], lang: Lang, theme: ChartTheme): Figure {
+export function cohortScatter(df: Decided[], lang: Lang, theme: ChartTheme, highlight?: Decided, height = 480): Figure {
   const hi = Math.max(...df.map((p) => Math.max(p.Est_Cost_Percent, p.Pred_Salary_Share_Percent))) * 1.05;
   const data: Plotly.Data[] = [{
     x: [0, hi], y: [0, hi], mode: "lines", type: "scatter", line: { color: theme.neutral, dash: "dash", width: 1.5 },
@@ -103,10 +103,19 @@ export function cohortScatter(df: Decided[], lang: Lang, theme: ChartTheme): Fig
         + t("col_stage", lang) + ": %{customdata[4]}<extra></extra>",
     });
   }
-  const maxCost = Math.max(...df.map((p) => p.Est_Cost_Percent));
+  if (highlight) {
+    // 報告頁：以橘色外圈標出本球員並加上名字
+    data.push({
+      x: [highlight.Est_Cost_Percent], y: [highlight.Pred_Salary_Share_Percent], mode: "text+markers", type: "scatter",
+      text: [highlight.Player], textposition: "top center", textfont: { size: 13, color: theme.text },
+      marker: { size: 26, color: "rgba(0,0,0,0)", line: { width: 3, color: "#f07c22" } },
+      showlegend: false, hoverinfo: "skip",
+    });
+  }
+  const maxCost = Math.max(...df.map((p) => p.Est_Cost_Percent), highlight?.Est_Cost_Percent ?? 0);
   return {
     data,
-    layout: base(theme, 480, {
+    layout: base(theme, height, {
       xaxis: axis(theme, t("m_cost", lang), { range: [0, maxCost * 1.08] }),
       yaxis: axis(theme, t("m_value", lang)),
     }),

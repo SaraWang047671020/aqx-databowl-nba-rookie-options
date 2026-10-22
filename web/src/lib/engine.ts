@@ -246,3 +246,25 @@ export const MODEL_META = {
   r2: model.test_r2 as number, rmse: model.test_rmse as number, mae: model.test_mae as number,
   nTrain: model.n_train as number, nTest: model.n_test as number,
 };
+
+// ---------------------------------------------------------------- scouting report helpers
+
+/** 預測 WS 在同梯次中的名次（1 = 最高） */
+export function cohortRank(p: Decided, decided: Decided[]): { rank: number; size: number } {
+  const cohort = decided.filter((x) => x.year_start === p.year_start && x.Player !== p.Player);
+  return { rank: cohort.filter((x) => x.Pred_WS > p.Pred_WS).length + 1, size: cohort.length + 1 };
+}
+
+/**
+ * 歷史相似球員：預測 WS 與選秀順位最接近、且已有第三年紀錄者。
+ * 只取「更早梯次」，避免用到做決策當下還不知道的資訊；手動輸入的新球員可比對全部梯次。
+ */
+export function comparables(p: Decided, decided: Decided[], n = 5, earlierOnly = true): Decided[] {
+  return decided
+    .filter((x) => x.Year3_WS !== null && x.Player !== p.Player
+      && (!earlierOnly || x.year_start < p.year_start))
+    .map((x) => ({ x, d: Math.abs(x.Pred_WS - p.Pred_WS) / RMSE + Math.abs(x.DraftRank - p.DraftRank) / 10 }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, n)
+    .map((r) => r.x);
+}

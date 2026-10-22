@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { PageHero } from "../components/Shell";
-import { DecisionCard, Dot, LIGHT_VAR, Reality, ReportButton, TINT_VAR, useT, Waterfall } from "../components/ui";
+import { DecisionCard, Dot, LIGHT_VAR, Reality, ReportLink, TINT_VAR, useT, Waterfall } from "../components/ui";
 import { COHORT_YEARS, type Decided } from "../lib/engine";
 
 export interface Selection { year: number; player: string }
@@ -79,7 +79,7 @@ export default function Lookup({ decided, sel, setSel }: {
           <Waterfall p={p} />
           <div>
             <Reality p={p} />
-            <ReportButton p={p} />
+            <ReportLink year={p.year_start} player={p.Player} />
           </div>
         </div>
       </div>

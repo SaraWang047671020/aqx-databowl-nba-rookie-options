@@ -1,7 +1,9 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { forecastStrip } from "../lib/charts";
-import { RMSE, waterfallSteps, type Decided, type Light } from "../lib/engine";
+import { RMSE, waterfallSteps, type Decided, type Light, type Step } from "../lib/engine";
 import { plain, t, type Lang } from "../lib/i18n";
+import { href } from "../lib/router";
+import { Icons } from "./Art";
 import type { ChartTheme } from "../lib/theme";
 import Plot from "./Plot";
 
@@ -88,20 +90,24 @@ export function DecisionCard({ p, showActual = true }: { p: Decided; showActual?
   );
 }
 
-export function Waterfall({ p }: { p: Decided }) {
+/** 每一層關卡的條件文字（實際值與門檻），網頁與 AI 報告共用 */
+export function gateRule(s: Step, p: Decided, tr: ReturnType<typeof useT>): string {
+  if (s.stage === "profit") return tr("rule_profit", { v: s.value! });
+  if (s.stage === "buffer") return tr("rule_buffer", { v: s.value!, b: p.buffer });
+  if (s.stage === "opportunity") return tr("rule_opportunity", { v: s.value!, t: s.threshold! });
+  if (s.stage === "star") return tr("rule_star", { v: s.value!, t: s.threshold!, a: s.extra!.ans, af: s.extra!.ansFloor });
+  return tr("rule_reject");
+}
+
+export function Waterfall({ p, title = true }: { p: Decided; title?: boolean }) {
   const tr = useT();
   const steps = waterfallSteps(p);
   return (
-    <section className="section">
-      <h2>{tr("waterfall_title")}</h2>
+    <section className={title ? "section" : undefined}>
+      {title && <h2>{tr("waterfall_title")}</h2>}
       <p className="caption">{tr("waterfall_caption")}</p>
       {steps.map((s, i) => {
-        let rule: string;
-        if (s.stage === "profit") rule = tr("rule_profit", { v: s.value! });
-        else if (s.stage === "buffer") rule = tr("rule_buffer", { v: s.value!, b: p.buffer });
-        else if (s.stage === "opportunity") rule = tr("rule_opportunity", { v: s.value!, t: s.threshold! });
-        else if (s.stage === "star") rule = tr("rule_star", { v: s.value!, t: s.threshold!, a: s.extra!.ans, af: s.extra!.ansFloor });
-        else rule = tr("rule_reject");
+        const rule = gateRule(s, p, tr);
         const color = s.stage === "reject" ? "red" : s.stage === "profit" ? "blue" : "green";
         const state = !s.reached ? "skip" : s.passed ? "pass" : "fail";
         const status = plain(tr(state === "skip" ? "gate_skip" : state === "pass" ? "gate_pass" : "gate_fail"));
@@ -122,7 +128,7 @@ export function Waterfall({ p }: { p: Decided }) {
   );
 }
 
-export function Reality({ p }: { p: Decided }) {
+export function Reality({ p, title = true }: { p: Decided; title?: boolean }) {
   const tr = useT();
   const facts: string[] = [];
   for (const [key, col] of [["team_kept_y3", "year_3"], ["team_kept_y4", "year_4"]] as const) {
@@ -131,8 +137,8 @@ export function Reality({ p }: { p: Decided }) {
   }
   if (p.color === "red" && p.Outcome_Label) facts.push(`${tr("outcome_label")}: ${tr(`outcome_${p.Outcome_Label}`)}`);
   return (
-    <section className="section">
-      <h2>{tr("reality_title")}</h2>
+    <section className={title ? "section" : undefined}>
+      {title && <h2>{tr("reality_title")}</h2>}
       {!p.hasYear3 ? (
         <div className="notice info">{plain(tr("reality_none"))}</div>
       ) : (
@@ -154,57 +160,20 @@ export function Reality({ p }: { p: Decided }) {
   );
 }
 
-const MAX_REPORTS_PER_SESSION = 5;
-let reportsUsed = 0;
-
-export function ReportButton({ p }: { p: Decided }) {
-  const { lang } = useUi();
+/** 前往完整球探報告頁；autostart 讓報告頁一打開就開始生成 AI 分析 */
+export function ReportLink({ year, player }: { year: number | "new"; player?: string }) {
   const tr = useT();
-  const [state, setState] = useState<{ loading: boolean; text?: string; error?: string; key?: string }>({ loading: false });
-  const key = `${p.year_start}|${p.Player}|${p.Pred_WS}|${lang}`;
-  const shown = state.key === key ? state : { loading: false };
-
-  async function run() {
-    if (reportsUsed >= MAX_REPORTS_PER_SESSION) {
-      setState({ loading: false, error: tr("llm_limit"), key });
-      return;
-    }
-    setState({ loading: true, key });
-    try {
-      const res = await fetch("/api/report", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          lang, stage: p.stage, player: p.Player, cohort: p.year_start, draft_pick: p.DraftRank,
-          predicted_year3_win_shares: p.Pred_WS, predicted_value_pct_of_cap: p.Pred_Salary_Share_Percent,
-          contract_cost_pct_of_cap: p.Est_Cost_Percent, net_surplus_pct_of_cap: p.ans,
-          replacement_level_win_shares: p.Dynamic_Truth_WS, star_power_index: p.Star_Power_Index,
-          cohort_star_power_70th_percentile: p.floor,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.report) throw new Error(data.error || tr("llm_error"));
-      reportsUsed++;
-      setState({ loading: false, text: data.report, key });
-    } catch (e) {
-      setState({ loading: false, error: e instanceof Error ? e.message : tr("llm_error"), key });
-    }
-  }
-
+  const target = year === "new" ? href("report", "new") : href("report", year, player ?? "");
   return (
-    <section className="section">
-      <button className="btn btn-primary" onClick={run} disabled={shown.loading}>
-        {shown.loading ? <span className="spinner" aria-hidden /> : <span aria-hidden>✦</span>}
-        {shown.loading ? tr("llm_spinner") : plain(tr("llm_button"))}
-      </button>
-      {shown.text && (
-        <div className="card" style={{ marginTop: 12 }}>
-          <h3>{tr("llm_title")}</h3>
-          <p className="report">{shown.text}</p>
-          <p className="caption" style={{ margin: 0 }}>{tr("llm_note")}</p>
-        </div>
-      )}
-      {shown.error && <div className="notice bad" style={{ marginTop: 12 }}>{shown.error}</div>}
+    <section className="section report-cta">
+      <div>
+        <h3>{tr("rpt_open")}</h3>
+        <p className="caption" style={{ margin: 0 }}>{tr("rpt_open_d")}</p>
+      </div>
+      <a className="btn btn-accent" href={target}
+        onClick={() => { try { sessionStorage.setItem("rpt_autostart", target); } catch { /* 忽略 */ } }}>
+        <Icons.sparkle size={18} />{tr("rpt_open")}
+      </a>
     </section>
   );
 }

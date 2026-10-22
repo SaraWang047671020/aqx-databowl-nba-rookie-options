@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PageHero } from "../components/Shell";
-import { DecisionCard, ReportButton, useT, Waterfall } from "../components/ui";
+import { DecisionCard, ReportLink, useT, Waterfall } from "../components/ui";
 import example from "../data/example.json";
 import { COHORT_YEARS, evaluateManual, type Decided } from "../lib/engine";
 
@@ -23,11 +23,10 @@ function exampleForm(): Form {
   return { name: example.name, year: example.year, pick: example.pick, pos, stats };
 }
 
-export default function Manual() {
+export default function Manual({ result, setResult }: { result: Decided | null; setResult: (r: Decided | null) => void }) {
   const tr = useT();
   const [form, setForm] = useState<Form>(EMPTY);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<Decided | null>(null);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -104,7 +103,7 @@ export default function Manual() {
             <p className="caption" style={{ marginTop: 10 }}>{tr("manual_spi_found", { v: result.Star_Power_Index })}</p>
           )}
           <Waterfall p={result} />
-          <ReportButton p={result} />
+          <ReportLink year="new" />
         </div>
       )}
       </div>
