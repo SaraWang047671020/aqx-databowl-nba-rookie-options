@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageHero } from "../components/Shell";
 import { DecisionCard, ReportLink, useT, Waterfall } from "../components/ui";
 import example from "../data/example.json";
-import { COHORT_YEARS, evaluateManual, type Decided } from "../lib/engine";
+import { ALL_YEARS, evaluateManual, type Decided } from "../lib/engine";
 
 const POSITIONS = ["PG", "SG", "SF", "PF", "C"];
 const GROUPS: [string, string[], number][] = [
@@ -13,7 +13,7 @@ const GROUPS: [string, string[], number][] = [
 
 type Form = { name: string; year: number; pick: number; pos: string; stats: Record<string, string> };
 
-const EMPTY: Form = { name: "", year: COHORT_YEARS[COHORT_YEARS.length - 1], pick: 15, pos: "PG", stats: {} };
+const EMPTY: Form = { name: "", year: ALL_YEARS[ALL_YEARS.length - 1], pick: 15, pos: "PG", stats: {} };
 
 function exampleForm(): Form {
   const s = example.stats as Record<string, number | boolean | null>;
@@ -56,7 +56,7 @@ export default function Manual({ result, setResult }: { result: Decided | null; 
           <div className="field">
             <label htmlFor="m-year">{tr("manual_compare")}</label>
             <select id="m-year" className="select" value={form.year} onChange={(e) => setForm({ ...form, year: Number(e.target.value) })}>
-              {COHORT_YEARS.map((y) => <option key={y} value={y}>{tr("cohort_option", { y, d: y - 1 })}</option>)}
+              {ALL_YEARS.map((y) => <option key={y} value={y}>{tr("cohort_option", { y, d: y - 1 })}</option>)}
             </select>
           </div>
           <div className="field">

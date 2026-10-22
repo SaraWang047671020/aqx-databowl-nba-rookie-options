@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .env
 .ipynb_checkpoints/
+
+# 抓取的原始網頁與新聞內文（版權屬原網站，只保留在本機）
+data/raw_bref/
+data/news/

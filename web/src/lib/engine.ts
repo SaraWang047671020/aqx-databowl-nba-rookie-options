@@ -7,6 +7,7 @@
 import model from "../data/model.json" with { type: "json" };
 import refs from "../data/refs.json" with { type: "json" };
 import spiTable from "../data/spi.json" with { type: "json" };
+import newCohorts from "../data/new_cohorts.json" with { type: "json" };
 import study from "../data/study.json" with { type: "json" };
 
 export const TEAM_COUNT = 30;
@@ -39,7 +40,13 @@ export interface RawPlayer {
   Outcome_Label: string | null;
   year_3: string | null;
   year_4: string | null;
+  /** research＝研究樣本 2013–2023；oot＝2024 梯次時間外驗證；live＝2025 梯次即時預測 */
+  segment?: Segment;
+  /** 球團實際的第四年選擇權決定（目前只有 2024 梯次） */
+  team_decision?: "exercised" | "declined" | "waived" | "n/a" | null;
 }
+
+export type Segment = "research" | "oot" | "live";
 
 export interface Decided extends RawPlayer {
   spi: number; // Star_Power_Index_Filled
@@ -67,9 +74,17 @@ export const DEFAULT_PARAMS: Params = {
   starMultiplier: STAR_RESCUE_MULTIPLIER,
 };
 
-export const STUDY = study as RawPlayer[];
+export const STUDY = (study as RawPlayer[]).map((p) => ({ ...p, segment: "research" as const }));
+/** 研究後新增的梯次：資料來自 Basketball-Reference，見 scripts/build_new_cohorts.py */
+export const NEW_COHORTS = newCohorts as RawPlayer[];
+const ALL_ROWS: RawPlayer[] = [...STUDY, ...NEW_COHORTS];
+/** 研究樣本的梯次（回測、參數模擬只用這些） */
 export const COHORT_YEARS = Array.from(
   { length: STUDY_YEARS[1] - STUDY_YEARS[0] + 1 }, (_, i) => STUDY_YEARS[0] + i);
+export const OOT_YEAR = 2024;
+export const LIVE_YEAR = 2025;
+/** 所有可查詢的梯次（含新梯次） */
+export const ALL_YEARS = [...COHORT_YEARS, OOT_YEAR, LIVE_YEAR];
 
 /** 與 pandas Series.quantile 預設（linear interpolation）相同。 */
 export function quantile(values: number[], q: number): number {
@@ -139,8 +154,8 @@ function cohortFloors(percentile: number): Map<number, number> {
   let floors = floorCache.get(percentile);
   if (!floors) {
     floors = new Map();
-    for (const year of COHORT_YEARS) {
-      const vals = STUDY.filter((p) => p.year_start === year).map((p) => p.Star_Power_Index ?? 0);
+    for (const year of ALL_YEARS) {
+      const vals = ALL_ROWS.filter((p) => p.year_start === year).map((p) => p.Star_Power_Index ?? 0);
       if (vals.length) floors.set(year, quantile(vals, percentile));
     }
     floorCache.set(percentile, floors);
@@ -148,11 +163,21 @@ function cohortFloors(percentile: number): Map<number, number> {
   return floors;
 }
 
-export function classify(params: Params = DEFAULT_PARAMS): Decided[] {
+function classifyRows(rows: RawPlayer[], params: Params): Decided[] {
   const buffer = RMSE * params.rmseMultiplier;
   const floors = cohortFloors(params.starPercentile);
-  return STUDY.map((p) => finish(p, p.Star_Power_Index ?? 0, floors.get(p.year_start) ?? 0, buffer,
+  return rows.map((p) => finish(p, p.Star_Power_Index ?? 0, floors.get(p.year_start) ?? 0, buffer,
     params.starMultiplier, p.Star_Power_Index !== null));
+}
+
+/** 研究樣本（2013–2023 梯次 329 人）：回測與參數模擬使用，數字與研究報告一致 */
+export function classify(params: Params = DEFAULT_PARAMS): Decided[] {
+  return classifyRows(STUDY, params);
+}
+
+/** 研究樣本 + 新梯次：球員查詢、梯次總覽、球探報告使用 */
+export function classifyAll(params: Params = DEFAULT_PARAMS): Decided[] {
+  return classifyRows(ALL_ROWS, params);
 }
 
 export interface Summary {

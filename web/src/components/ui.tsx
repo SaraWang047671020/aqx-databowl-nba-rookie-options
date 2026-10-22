@@ -136,10 +136,13 @@ export function Reality({ p, title = true }: { p: Decided; title?: boolean }) {
     if (v === "yes" || v === "no") facts.push(`${tr(key)}: ${tr(v)}`);
   }
   if (p.color === "red" && p.Outcome_Label) facts.push(`${tr("outcome_label")}: ${tr(`outcome_${p.Outcome_Label}`)}`);
+  if (p.team_decision) facts.push(`${tr("team_decision")}: ${tr(`td_${p.team_decision}`)}`);
   return (
     <section className={title ? "section" : undefined}>
       {title && <h2>{tr("reality_title")}</h2>}
-      {!p.hasYear3 ? (
+      {p.segment === "live" ? (
+        <div className="notice info">{tr("reality_live")}</div>
+      ) : !p.hasYear3 ? (
         <div className="notice info">{plain(tr("reality_none"))}</div>
       ) : (
         <div className="stack">

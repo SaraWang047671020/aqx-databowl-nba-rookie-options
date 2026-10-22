@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { PageHero } from "../components/Shell";
 import { DecisionCard, Dot, LIGHT_VAR, Reality, ReportLink, TINT_VAR, useT, Waterfall } from "../components/ui";
-import { COHORT_YEARS, type Decided } from "../lib/engine";
+import { ALL_YEARS, LIVE_YEAR, OOT_YEAR, type Decided } from "../lib/engine";
 
 export interface Selection { year: number; player: string }
 
@@ -38,7 +38,11 @@ export default function Lookup({ decided, sel, setSel }: {
                 const first = decided.filter((x) => x.year_start === year).sort((a, b) => a.DraftRank - b.DraftRank)[0];
                 setSel({ year, player: first.Player });
               }}>
-              {COHORT_YEARS.map((y) => <option key={y} value={y}>{tr("cohort_option", { y, d: y - 1 })}</option>)}
+              {ALL_YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {tr("cohort_option", { y, d: y - 1 })}{y === OOT_YEAR ? ` · ${tr("seg_oot")}` : y === LIVE_YEAR ? ` · ${tr("seg_live")}` : ""}
+                </option>
+              ))}
             </select>
           </div>
           <div className="field">

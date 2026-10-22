@@ -297,4 +297,78 @@ export const COPY: Record<string, Entry> = {
   rpt_error: { en: "The AI analysis could not be generated.", zh: "AI 分析生成失敗。" },
   rpt_hypo: { en: "Hypothetical player", zh: "假設球員" },
   rpt_ai_pending: { en: "AI analysis not generated yet.", zh: "尚未生成 AI 分析。" },
+
+  // ---- new cohorts: out-of-time test (2024) & live calls (2025) ----
+  nav_live: { en: "Live 2026", zh: "即時預測" },
+  seg_oot: { en: "out-of-time test", zh: "時間外驗證" },
+  seg_live: { en: "live", zh: "即時預測" },
+  team_decision: { en: "Team's actual 4th-year option call", zh: "球團實際第四年選擇權決定" },
+  td_exercised: { en: "Exercised", zh: "執行" },
+  td_declined: { en: "Declined", zh: "放棄" },
+  td_waived: { en: "Waived (option not exercised)", zh: "裁員（未執行）" },
+  "td_n/a": { en: "Not applicable", zh: "不適用" },
+  reality_live: {
+    en: "Year 3 (2026-27) is in progress, so this call can't be scored yet.",
+    zh: "第三季（2026-27）正在進行，這個判斷還無法驗證。",
+  },
+  page_live_t: { en: "Live: the 2026 fourth-year option calls", zh: "即時預測：2026 年第四年選擇權" },
+  page_live_d: {
+    en: "The 2024 draft class has finished two seasons. Teams must decide on their fourth-year options by November 2, 2026. Here is what the model recommends, published before the deadline.",
+    zh: "2024 年選秀的新秀已打完兩季，球隊須在 2026 年 11 月 2 日前決定是否執行第四年選擇權。以下是模型在期限前公開的建議。",
+  },
+  live_deadline: { en: "Decision deadline", zh: "決定期限" },
+  live_deadline_v: { en: "Nov 2, 2026", zh: "2026 年 11 月 2 日" },
+  live_deadline_note: {
+    en: "October 31 falls on a Saturday this year, so the deadline moves to the next business day.",
+    zh: "今年 10 月 31 日是週六，依規定順延到下一個工作日。",
+  },
+  live_days: { en: "{n} days left", zh: "剩 {n} 天" },
+  live_passed: { en: "Deadline passed — results coming", zh: "期限已過，即將公布對照結果" },
+  live_table_t: { en: "Recommendations for the 2025 cohort (2024 draft)", zh: "2025 梯次（2024 年選秀）的建議" },
+  live_table_d: {
+    en: "Forecast year-3 (2026-27) Win Shares from the first two seasons. Click a name for the full scouting report.",
+    zh: "以前兩季數據預測第三季（2026-27）Win Shares。點球員名字可開啟完整球探報告。",
+  },
+  live_followup: {
+    en: "After the deadline we will compare these calls with the teams' actual decisions, and after the 2026-27 season with the players' real output.",
+    zh: "期限過後，會把這些建議和球隊的實際決定對照；2026-27 球季結束後，再和球員的實際產能對照。",
+  },
+  live_note_data: {
+    en: "Stats scraped from Basketball-Reference (2024-25 and 2025-26 seasons); salary cap $154.647M (2025-26). News sentiment uses the same scraper and RoBERTa pipeline as the research; three players had no qualifying news and are scored 0.",
+    zh: "數據取自 Basketball-Reference（2024-25、2025-26 球季），薪資帽 1.54647 億美元（2025-26）。新聞聲量沿用研究的爬蟲與 RoBERTa 流程；3 位球員沒有符合條件的新聞，以 0 計算。",
+  },
+  oot_t: { en: "Out-of-time test: the 2024 cohort", zh: "時間外驗證：2024 梯次" },
+  oot_d: {
+    en: "The research covers 2013–2023. The 2024 cohort (2023 draft) was never seen by the model: it is trained only on earlier cohorts, and the players' year-3 season (2025-26) has since been played. This is the strict out-of-time test the report lists as a limitation.",
+    zh: "研究範圍是 2013–2023 梯次。2024 梯次（2023 年選秀）模型完全沒看過：只用更早的梯次訓練，而這批球員的第三季（2025-26）已經打完。這正是報告列為研究限制的「完整時間外驗證」。",
+  },
+  oot_r2: { en: "Forecast R² (n = {n})", zh: "預測 R²（{n} 人）" },
+  oot_rmse: { en: "Forecast RMSE", zh: "預測 RMSE" },
+  oot_hit: { en: "Stop-loss calls that fell short", zh: "止損名單確實未達標" },
+  oot_fn: { en: "Good players wrongly declined", zh: "好球員被誤判止損" },
+  oot_vs_team_t: { en: "Model vs. the teams' real decisions", zh: "模型 vs. 球團的實際決定" },
+  oot_vs_team_d: {
+    en: "Teams decided the fourth-year options of this cohort by October 31, 2025. The model agreed on {a} of {n}. Where they disagreed, the player's actual year-3 output shows who was right.",
+    zh: "球團已在 2025 年 10 月 31 日前決定這批球員的第四年選擇權。模型與球團有 {a}/{n} 人一致；不一致的球員，用第三年實際產能判斷誰對。",
+  },
+  oot_who: { en: "Who was right", zh: "誰對" },
+  oot_model: { en: "Model", zh: "模型" },
+  oot_team: { en: "Team", zh: "球團" },
+  oot_model_call: { en: "Model call", zh: "模型建議" },
+  oot_note: {
+    en: "Small sample (30 players with a year-3 record). Hood-Schifino and Holmgren have no comparable team decision (left the rookie deal / 2022 draft class).",
+    zh: "樣本小（30 人有第三年紀錄）。Hood-Schifino、Holmgren 沒有可比較的球團決定（已不在新秀合約／2022 年選秀）。",
+  },
+  home_live_kicker: { en: "Live before the deadline", zh: "期限前即時預測" },
+  board_title_live: { en: "2025 cohort · live calls", zh: "2025 梯次・即時預測" },
+  board_caption_live: { en: "Fourth-year option deadline: Nov 2, 2026. Click a player for the full report.", zh: "第四年選擇權期限：2026/11/2。點選球員查看完整報告。" },
+  finding_oot_d: {
+    en: "Out-of-time test on the unseen 2024 cohort: forecast R² {r2}, and every stop-loss call with a year-3 record fell short.",
+    zh: "沒看過的 2024 梯次時間外驗證：預測 R² {r2}，有第三年紀錄的止損建議全數未達標。",
+  },
+  cta_live: { en: "See the live calls", zh: "看即時預測" },
+  m_caveat_7: {
+    en: "The 2024 and 2025 cohorts were added after the research: stats come from Basketball-Reference, and their forecasts follow the research's yearly re-training procedure (re-running it for 2023 reproduces the research forecasts within 0.03 WS on average).",
+    zh: "2024、2025 梯次為研究後新增：數據取自 Basketball-Reference，預測沿用研究的逐年重訓流程（以同流程重算 2023 梯次，與研究預測平均相差 0.03 WS）。",
+  },
 };

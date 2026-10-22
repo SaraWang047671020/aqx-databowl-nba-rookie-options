@@ -1,7 +1,7 @@
 // 逐人比對瀏覽器端決策引擎與 Python 版（webapp/decision_engine.py）的結果。
 // 執行：npm run verify
 import expected from "../src/data/expected.json" with { type: "json" };
-import { classify, evaluateManual, summarize } from "../src/lib/engine.ts";
+import { classify, classifyAll, evaluateManual, NEW_COHORTS, summarize } from "../src/lib/engine.ts";
 
 const decided = classify();
 let mismatch = 0;
@@ -35,6 +35,17 @@ for (const c of expected.manual) {
   if (!ok) bad++;
   console.log(`${ok ? "ok " : "BAD"} manual ${c.name}: pred ${r.Pred_WS.toFixed(4)} stage ${r.stage} bar ${r.Dynamic_Truth_WS} (python ${c.dtw}, ${c.pred_ws.toFixed(4)} ${c.stage})`);
 }
+const newStages = expected.new_stages as Record<string, string>;
+const all = classifyAll();
+let newBad = 0;
+for (const p of all.filter((x) => x.segment !== "research")) {
+  if (newStages[`${p.year_start}|${p.Player}`] !== p.stage) {
+    newBad++;
+    console.log("NEW MISMATCH", p.year_start, p.Player, p.stage, "expected", newStages[`${p.year_start}|${p.Player}`]);
+  }
+}
+if (newBad) bad += newBad;
+console.log(`${newBad ? "BAD" : "ok "} new cohorts: ${NEW_COHORTS.length - newBad}/${NEW_COHORTS.length} stages match scripts/classify_new_cohorts.py`);
 const tight = summarize(classify({ rmseMultiplier: 0.5, starPercentile: 0.7, starMultiplier: 1.5 }));
 const tightOk = tight.red === 68;
 if (!tightOk) bad++;

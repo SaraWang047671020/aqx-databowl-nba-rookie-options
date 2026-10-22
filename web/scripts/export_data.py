@@ -51,7 +51,7 @@ def main():
     decided = de.classify_frame(study)
     norm = pd.read_csv(de.NORMALIZED_PATH)
     manual_cases = []
-    for name, year, pick in [("Victor Wembanyama", 2023, 1), ("Test Player", 2018, 22), ("Late Pick", 2016, 30)]:
+    for name, year, pick in [("Test Rookie", 2023, 1), ("Test Player", 2018, 22), ("Late Pick", 2016, 30)]:
         src = norm[norm["year_start"] == year].iloc[3]
         stats = {c: clean(src[c]) for c in de.get_feature_cols()}
         r = de.evaluate_manual_player({**stats, "Player": name}, draft_rank=pick, draft_year=year)
@@ -63,6 +63,8 @@ def main():
         "stages": {f"{r.year_start}|{r.Player}": r.stage for r in decided.itertuples()},
         "summary": {k: clean(v) for k, v in de.backtest_summary(decided).items()},
         "manual": manual_cases,
+        "new_stages": {f"{int(r.year_start)}|{r.Player}": r.stage for r in
+                       pd.read_csv(os.path.join(de.DATA_DIR, "new_cohorts_decisions.csv")).itertuples()},
     })
 
     # 模型：median 補值 → 標準化 → Lasso，皆為線性運算，可直接在瀏覽器計算
@@ -83,10 +85,25 @@ def main():
         "n_test": meta["n_test"],
     })
 
-    # 手動輸入新球員時所需的各梯次參考值（同 evaluate_manual_player）
+    # 新梯次（2024 時間外驗證、2025 即時預測）：由 scripts/classify_new_cohorts.py 產生
+    new = pd.read_csv(os.path.join(de.DATA_DIR, "new_cohorts_decisions.csv"))
+    new_rows = []
+    for _, r in new.iterrows():
+        rec = {c: clean(r[c]) for c in ["Player", "year_start", "DraftRank", "Pred_WS", "Year3_WS",
+                                        "Pred_Salary_Share_Percent", "Est_Cost_Percent", "Dynamic_Truth_WS",
+                                        "BRI_Factor", "Star_Power_Index", "year_3", "year_4", "team_decision"]}
+        rec["year_start"] = int(rec["year_start"])
+        rec["DraftRank"] = int(rec["DraftRank"])
+        rec["Outcome_Label"] = None
+        rec["segment"] = "oot" if rec["year_start"] == 2024 else "live"
+        new_rows.append(rec)
+    dump("new_cohorts.json", new_rows)
+
+    # 手動輸入新球員時所需的各梯次參考值（同 evaluate_manual_player；2024、2025 取自延伸資料）
+    norm_ext = pd.read_csv(os.path.join(de.DATA_DIR, "NBA_Normalized_Final_2025.csv"))
     refs = {}
-    for year in de.list_cohort_years():
-        ref = norm[norm["year_start"] == year]
+    for year in list(de.list_cohort_years()) + [2024, 2025]:
+        ref = norm_ext[norm_ext["year_start"] == year]
         if ref.empty:
             continue
         r = ref.iloc[0]
@@ -98,6 +115,9 @@ def main():
     master = master[master["Star_Power_Index"].notna()]
     spi = {}
     for _, r in master.iterrows():
+        spi[str(r["Player"]).strip().lower()] = float(r["Star_Power_Index"])
+    # 新梯次的聲量指數（scripts/star_power.py）
+    for _, r in pd.read_csv(os.path.join(de.DATA_DIR, "star_power_2024_2025.csv")).iterrows():
         spi[str(r["Player"]).strip().lower()] = float(r["Star_Power_Index"])
     dump("spi.json", spi)
 

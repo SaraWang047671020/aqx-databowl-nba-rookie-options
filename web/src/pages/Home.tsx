@@ -1,6 +1,7 @@
 import { CourtBackdrop, Icons, type IconName } from "../components/Art";
 import { Dot, LIGHT_VAR, useT } from "../components/ui";
-import { MODEL_META, summarize, type Decided } from "../lib/engine";
+import { LIVE_YEAR, MODEL_META, OOT_YEAR, summarize, type Decided } from "../lib/engine";
+import { daysLeft } from "./Live";
 import type { Selection } from "./Lookup";
 import { href, type Route } from "../lib/router";
 
@@ -19,23 +20,22 @@ const TOOLS: { route: Route; icon: IconName; t: string; d: string }[] = [
   { route: "new", icon: "plus", t: "nav_new", d: "card_new_d" },
 ];
 
-const BOARD_YEAR = 2023;
-
-/** 首頁右側：最新梯次前段順位的預測看板，點選可直接跳到球員頁 */
-function CohortBoard({ decided, onPick }: { decided: Decided[]; onPick: (s: Selection) => void }) {
+/** 首頁右側：2025 梯次（期限前即時預測）前段順位看板，點選開啟該球員的球探報告 */
+function CohortBoard({ decided }: { decided: Decided[] }) {
   const tr = useT();
-  const rows = decided.filter((p) => p.year_start === BOARD_YEAR).sort((a, b) => a.DraftRank - b.DraftRank).slice(0, 8);
+  const rows = decided.filter((p) => p.year_start === LIVE_YEAR).sort((a, b) => a.DraftRank - b.DraftRank).slice(0, 8);
+  const left = daysLeft();
   const max = Math.max(...rows.map((p) => p.Pred_WS), 1);
   return (
     <div className="board">
       <div className="board-head">
-        <span>{tr("board_title", { y: BOARD_YEAR })}</span>
-        <span className="board-live">● {tr("fc_pred")}</span>
+        <span>{tr("board_title_live")}</span>
+        <span className="board-live">● {left > 0 ? tr("live_days", { n: left }) : tr("seg_live")}</span>
       </div>
       <ul>
         {rows.map((p) => (
           <li key={p.Player}>
-            <a href={href("player")} onClick={() => onPick({ year: p.year_start, player: p.Player })}>
+            <a href={href("report", p.year_start, p.Player)}>
               <span className="board-pick">#{p.DraftRank}</span>
               <span className="board-name">{p.Player}</span>
               <span className="board-bar"><i style={{ width: `${Math.max(4, (p.Pred_WS / max) * 100)}%`, background: LIGHT_VAR[p.color] }} /></span>
@@ -45,14 +45,18 @@ function CohortBoard({ decided, onPick }: { decided: Decided[]; onPick: (s: Sele
           </li>
         ))}
       </ul>
-      <p className="board-caption">{tr("board_caption")}</p>
+      <p className="board-caption">{tr("board_caption_live")} <a href={href("live")} style={{ color: "var(--accent)" }}>{tr("cta_live")} →</a></p>
     </div>
   );
 }
 
-export default function Home({ decided, onPick }: { decided: Decided[]; onPick: (s: Selection) => void }) {
+export default function Home({ decided, all }: { decided: Decided[]; all: Decided[]; onPick: (s: Selection) => void }) {
   const tr = useT();
   const s = summarize(decided);
+  const oot = all.filter((p) => p.year_start === OOT_YEAR && p.Year3_WS !== null);
+  const ootMean = oot.reduce((a, p) => a + (p.Year3_WS as number), 0) / oot.length;
+  const ootR2 = 1 - oot.reduce((a, p) => a + ((p.Year3_WS as number) - p.Pred_WS) ** 2, 0)
+    / oot.reduce((a, p) => a + ((p.Year3_WS as number) - ootMean) ** 2, 0);
 
   return (
     <>
@@ -69,10 +73,10 @@ export default function Home({ decided, onPick }: { decided: Decided[]; onPick: 
           <p className="lead">{tr("home_sub")}</p>
           <div className="hero-ctas">
             <a className="btn btn-accent btn-lg" href={href("player")}>{tr("cta_try")} <Icons.arrow size={18} /></a>
-            <a className="btn btn-ghost btn-lg" href={href("method")}>{tr("cta_method")}</a>
+            <a className="btn btn-ghost btn-lg" href={href("live")}>{tr("cta_live")}</a>
           </div>
           </div>
-          <CohortBoard decided={decided} onPick={onPick} />
+          <CohortBoard decided={all} />
           </div>
         </div>
         <div className="container">
@@ -135,6 +139,10 @@ export default function Home({ decided, onPick }: { decided: Decided[]; onPick: 
               <b style={{ color: "var(--blue)" }}>+{s.net.toFixed(1)}</b>
               <p>{tr("finding_net_d")}</p>
             </div>
+            <a className="finding finding-link" href={href("results")}>
+              <b style={{ color: "var(--accent)" }}>R² {ootR2.toFixed(2)}</b>
+              <p>{tr("finding_oot_d", { r2: ootR2.toFixed(2) })}</p>
+            </a>
           </div>
         </div>
       </section>

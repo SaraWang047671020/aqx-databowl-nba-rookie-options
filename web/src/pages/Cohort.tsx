@@ -3,7 +3,7 @@ import Plot from "../components/Plot";
 import { PageHero } from "../components/Shell";
 import { Metric, Section, useT, useUi } from "../components/ui";
 import { cohortScatter } from "../lib/charts";
-import { COHORT_YEARS, summarize, type Decided } from "../lib/engine";
+import { ALL_YEARS, LIVE_YEAR, OOT_YEAR, summarize, type Decided } from "../lib/engine";
 import PlayerTable from "./PlayerTable";
 
 export default function Cohort({ decided, year, setYear }: { decided: Decided[]; year: number; setYear: (y: number) => void }) {
@@ -17,8 +17,10 @@ export default function Cohort({ decided, year, setYear }: { decided: Decided[];
     <>
       <PageHero kicker={tr("nav_cohort")} title={tr("page_cohort_t")} desc={tr("page_cohort_d")}>
         <div className="chips chips-dark" role="group" aria-label={tr("cohort")}>
-          {COHORT_YEARS.map((y) => (
-            <button key={y} className="chip" aria-pressed={y === year} onClick={() => setYear(y)}>{y}</button>
+          {ALL_YEARS.map((y) => (
+            <button key={y} className="chip" aria-pressed={y === year} onClick={() => setYear(y)}>
+              {y}{y === OOT_YEAR ? ` · ${tr("seg_oot")}` : y === LIVE_YEAR ? ` · ${tr("seg_live")}` : ""}
+            </button>
           ))}
         </div>
         <p className="hero-note">{tr("cohort_note")}</p>

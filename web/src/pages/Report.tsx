@@ -266,7 +266,7 @@ export default function Report({ p, decided, isManual }: { p: Decided | null; de
           </div>
         </Sec>
 
-        {!isManual && (
+        {!isManual && p.segment !== "live" && (
           <Sec n={++n} title={tr("rpt_sec_hindsight")}>
             <p className="caption">{tr("rpt_hindsight_d")}</p>
             <Reality p={p} title={false} />

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Footer, Navbar, type ThemeMode } from "./components/Shell";
 import { UiContext } from "./components/ui";
-import { classify, type Decided } from "./lib/engine";
+import { classify, classifyAll, type Decided } from "./lib/engine";
 import { t, type Lang } from "./lib/i18n";
 import { useLocation } from "./lib/router";
 import { readTheme, type ChartTheme } from "./lib/theme";
@@ -9,6 +9,7 @@ import About from "./pages/About";
 import Backtest from "./pages/Backtest";
 import Cohort from "./pages/Cohort";
 import Home from "./pages/Home";
+import Live from "./pages/Live";
 import Lookup, { type Selection } from "./pages/Lookup";
 import Manual from "./pages/Manual";
 import Method from "./pages/Method";
@@ -17,7 +18,7 @@ import WhatIf from "./pages/WhatIf";
 
 const NAV_TITLE: Record<string, string> = {
   method: "nav_method", player: "nav_player", cohort: "nav_cohort", results: "nav_results",
-  simulator: "nav_simulator", new: "nav_new", about: "nav_about", report: "nav_report",
+  simulator: "nav_simulator", new: "nav_new", about: "nav_about", report: "nav_report", live: "nav_live",
 };
 
 function load<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
@@ -42,7 +43,8 @@ export default function App() {
   const [sel, setSel] = useState<Selection>({ year: 2014, player: "Anthony Bennett" });
   const [cohortYear, setCohortYear] = useState(2023);
 
-  const decided = useMemo(() => classify(), []);
+  const decided = useMemo(() => classify(), []); // 研究樣本：回測、參數模擬
+  const decidedAll = useMemo(() => classifyAll(), []); // 含 2024、2025 新梯次
 
   useEffect(() => {
     document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
@@ -59,7 +61,7 @@ export default function App() {
   const reportManual = route === "report" && args[0] === "new";
   const reportPlayer = route !== "report" ? null
     : reportManual ? manualResult
-      : decided.find((p) => p.year_start === Number(args[0]) && p.Player === args[1]) ?? null;
+      : decidedAll.find((p) => p.year_start === Number(args[0]) && p.Player === args[1]) ?? null;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -76,14 +78,15 @@ export default function App() {
     <UiContext.Provider value={{ lang, theme }}>
       <Navbar route={route} lang={lang} setLang={setLang} mode={mode} setMode={setMode} />
       <main>
-        {route === "home" && <Home decided={decided} onPick={setSel} />}
+        {route === "home" && <Home decided={decided} all={decidedAll} onPick={setSel} />}
         {route === "method" && <Method />}
-        {route === "player" && <Lookup decided={decided} sel={sel} setSel={setSel} />}
-        {route === "cohort" && <Cohort decided={decided} year={cohortYear} setYear={setCohortYear} />}
-        {route === "results" && <Backtest decided={decided} />}
+        {route === "player" && <Lookup decided={decidedAll} sel={sel} setSel={setSel} />}
+        {route === "cohort" && <Cohort decided={decidedAll} year={cohortYear} setYear={setCohortYear} />}
+        {route === "results" && <Backtest decided={decided} all={decidedAll} />}
+        {route === "live" && <Live decided={decidedAll} />}
         {route === "simulator" && <WhatIf base={decided} />}
         {route === "new" && <Manual result={manualResult} setResult={setManualResult} />}
-        {route === "report" && <Report p={reportPlayer} decided={decided} isManual={reportManual} />}
+        {route === "report" && <Report p={reportPlayer} decided={decidedAll} isManual={reportManual} />}
         {route === "about" && <About />}
       </main>
       <Footer />
