@@ -101,9 +101,9 @@ def main():
         spi[str(r["Player"]).strip().lower()] = float(r["Star_Power_Index"])
     dump("spi.json", spi)
 
-    # 「填入範例」用：Darius Garland（2020 梯次）前兩季數據
-    ex = norm[(norm["Player"].astype(str).str.strip() == "Darius Garland") & (norm["year_start"] == 2020)].iloc[0]
-    dump("example.json", {"name": "Darius Garland", "year": 2020, "pick": int(ex["DraftRank"]),
+    # 「填入範例」用：Anthony Bennett（2014 梯次狀元）前兩季數據
+    ex = norm[(norm["Player"].astype(str).str.strip() == "Anthony Bennett") & (norm["year_start"] == 2014)].iloc[0]
+    dump("example.json", {"name": "Anthony Bennett", "year": 2014, "pick": int(ex["DraftRank"]),
                           "stats": {c: clean(ex[c]) for c in de.get_feature_cols()}})
 
     # 介面文字：沿用 Streamlit 版的 STRINGS（Python format 語法由前端 formatter 處理）

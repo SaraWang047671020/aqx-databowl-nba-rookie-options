@@ -39,7 +39,7 @@ export default function App() {
   const [theme, setTheme] = useState<ChartTheme>(readTheme);
   const { route, args } = useLocation();
   const [manualResult, setManualResult] = useState<Decided | null>(null);
-  const [sel, setSel] = useState<Selection>({ year: 2020, player: "Darius Garland" });
+  const [sel, setSel] = useState<Selection>({ year: 2014, player: "Anthony Bennett" });
   const [cohortYear, setCohortYear] = useState(2023);
 
   const decided = useMemo(() => classify(), []);

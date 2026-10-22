@@ -50,7 +50,7 @@ export default function Lookup({ decided, sel, setSel }: {
           </div>
           <div className="field">
             <label htmlFor="search">{tr("search_player")}</label>
-            <input id="search" className="input" list="all-players" value={query} placeholder="Garland, Ayton…"
+            <input id="search" className="input" list="all-players" value={query} placeholder="Bennett, Siakam…"
               onChange={(e) => onSearch(e.target.value)} autoComplete="off" />
             <datalist id="all-players">
               {decided.map((x) => <option key={label(x)} value={label(x)} />)}

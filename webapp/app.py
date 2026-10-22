@@ -236,12 +236,12 @@ def lookup_tab(lang: str):
     df = decided()
     years = de.list_cohort_years()
     c1, c2 = st.columns([1, 2])
-    year = persistent_selectbox(c1, t("cohort", lang), years, 2020,
+    year = persistent_selectbox(c1, t("cohort", lang), years, 2014,
                                 lambda y: cohort_label(y, lang), "lookup_year", lang)
     cohort = df[df["year_start"] == year].sort_values("DraftRank")
     names = cohort["Player"].tolist()
     picks = dict(zip(cohort["Player"], cohort["DraftRank"].astype(int)))
-    player = persistent_selectbox(c2, t("player", lang), names, "Darius Garland",
+    player = persistent_selectbox(c2, t("player", lang), names, "Anthony Bennett",
                                   lambda p: f"#{picks[p]} · {p}", "lookup_player", lang)
     st.caption(t("cohort_note", lang))
 
