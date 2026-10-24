@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CourtBackdrop, Icons } from "../components/Art";
 import Plot from "../components/Plot";
-import { Dot, Forecast, gateRule, LIGHT_VAR, Metric, Reality, Table, TINT_VAR, useT, useUi, Waterfall, type Column } from "../components/ui";
+import { Dot, Forecast, gateRule, LIGHT_VAR, Metric, Reality, Table, TeamDecision, TINT_VAR, useT, useUi, Waterfall, type Column } from "../components/ui";
 import { cohortScatter } from "../lib/charts";
 import { cohortRank, comparables, MODEL_META, RMSE, waterfallSteps, type Decided } from "../lib/engine";
 import { plain } from "../lib/i18n";
@@ -265,6 +265,13 @@ export default function Report({ p, decided, isManual }: { p: Decided | null; de
             <AiText state={ai}>{(r) => <p>{r.bottom_line}</p>}</AiText>
           </div>
         </Sec>
+
+        {p.segment === "live" && (
+          <Sec n={++n} title={tr("td_title")}>
+            <p className="caption">{tr("reality_live")}</p>
+            <TeamDecision p={p} />
+          </Sec>
+        )}
 
         {!isManual && p.segment !== "live" && (
           <Sec n={++n} title={tr("rpt_sec_hindsight")}>

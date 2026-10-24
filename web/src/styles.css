@@ -456,3 +456,11 @@ details.fold > div { padding: 4px 14px 14px; }
   .container { max-width: none; padding: 0; }
   @page { margin: 14mm; }
 }
+
+/* ---------------------------------------------------------------- team decision */
+.team-card { border: 1px solid var(--border-strong); border-left: 5px solid var(--accent); border-radius: 12px; padding: 12px 16px; background: var(--surface); }
+.team-card-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.team-card-value { font-family: var(--display); font-size: 1.6rem; font-weight: 800; margin: 2px 0 4px; }
+.agree-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 800; border-radius: 999px; padding: 2px 10px; }
+.agree-chip.yes { background: var(--green-tint); color: var(--green); }
+.agree-chip.no { background: var(--red-tint); color: var(--red); }

@@ -34,6 +34,17 @@ TEAM_DECISION_2024 = {
 }
 
 
+# 2025 梯次（2024 年選秀）第四年（2027/28）選擇權，期限 2026-11-02；尚未公布者為 pending
+# 來源：https://www.hoopsrumors.com/2026/09/decisions-on-2027-28-rookie-scale-team-options.html
+TEAM_DECISION_2025_AS_OF = "2026-10-24"
+TEAM_DECISION_2025 = {
+    **{p: "exercised" for p in ["Stephon Castle", "Ron Holland", "Matas Buzelis", "Zach Edey", "Yves Missi",
+                                "Tristan Da Silva", "Ryan Dunn", "Jaylon Tyson", "Ja'Kobe Walter"]},
+    "Rob Dillingham": "waived", "Dalton Knecht": "waived", "Devin Carter": "waived",
+    "AJ Johnson": "declined",
+}
+
+
 def decide(ans, pred, dtw, spi, floor):
     if ans > 0:
         return "profit"
@@ -59,7 +70,8 @@ def main():
     x["stage"] = [decide(r.Adjusted_Net_Surplus, r.Pred_WS, r.Dynamic_Truth_WS, r.SPI_Filled, r.Star_Power_Floor)
                   for r in x.itertuples()]
     x["color"] = x["stage"].map({"profit": "blue", "buffer": "green", "opportunity": "green", "star": "green", "reject": "red"})
-    x["team_decision"] = x["Player"].map(TEAM_DECISION_2024).where(x["year_start"] == 2024)
+    x["team_decision"] = np.where(x["year_start"] == 2024, x["Player"].map(TEAM_DECISION_2024),
+                                  x["Player"].map(TEAM_DECISION_2025).fillna("pending"))
 
     cols = ["Player", "player_id", "year_start", "draft_year", "DraftRank", "Pred_WS", "Year3_WS", "Pred_Salary_Share_Percent",
             "Est_Cost_Percent", "Dynamic_Truth_WS", "BRI_Factor", "Star_Power_Index", "Article_Count", "has_sentiment",
@@ -91,6 +103,10 @@ def main():
     print(f"vs team 4th-year decisions: agree {(team_keep == model_keep).sum()}/{len(t)}")
     print(t[team_keep != model_keep][["Player", "stage", "team_decision", "Pred_WS", "Year3_WS", "Dynamic_Truth_WS"]]
           .round(2).to_string(index=False))
+    u = x[(x["year_start"] == 2025) & (x["team_decision"] != "pending")]
+    agree = ((u["team_decision"] == "exercised") == (u["color"] != "red"))
+    print(f"\n2025 live (as of {TEAM_DECISION_2025_AS_OF}): announced {len(u)}/28, agree {int(agree.sum())}")
+    print(u[["Player", "stage", "team_decision"]].to_string(index=False))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { forecastStrip } from "../lib/charts";
-import { RMSE, waterfallSteps, type Decided, type Light, type Step } from "../lib/engine";
+import { RMSE, TEAM_DECISIONS_AS_OF, waterfallSteps, type Decided, type Light, type Step } from "../lib/engine";
 import { plain, t, type Lang } from "../lib/i18n";
 import { href } from "../lib/router";
 import { Icons } from "./Art";
@@ -128,6 +128,34 @@ export function Waterfall({ p, title = true }: { p: Decided; title?: boolean }) 
   );
 }
 
+/** 球團實際的第四年選擇權決定（2024、2025 梯次），並標示與模型建議是否一致 */
+export function TeamDecision({ p }: { p: Decided }) {
+  const tr = useT();
+  const d = p.team_decision;
+  if (!d) return null;
+  const announced = d === "exercised" || d === "declined" || d === "waived";
+  const teamKeep = d === "exercised";
+  const agree = announced && teamKeep === (p.color !== "red");
+  const tone = !announced ? "var(--muted)" : teamKeep ? "var(--green)" : "var(--red)";
+  return (
+    <div className="team-card">
+      <div className="team-card-head">
+        <span className="label">{tr("td_title")} · {tr("td_option")}</span>
+        {announced && (
+          <span className={`agree-chip ${agree ? "yes" : "no"}`}>{agree ? "✓ " : "≠ "}{tr(agree ? "td_agree" : "td_disagree")}</span>
+        )}
+      </div>
+      <div className="team-card-value" style={{ color: tone }}>
+        {announced ? (teamKeep ? "✓ " : "✕ ") : "… "}{tr(`td_${d}`)}
+      </div>
+      <p className="caption" style={{ margin: 0 }}>
+        {d === "n/a" ? tr("td_na_note")
+          : p.segment === "live" ? tr("td_pending_note", { d: TEAM_DECISIONS_AS_OF }) : tr("td_source_2024")}
+      </p>
+    </div>
+  );
+}
+
 export function Reality({ p, title = true }: { p: Decided; title?: boolean }) {
   const tr = useT();
   const facts: string[] = [];
@@ -136,7 +164,6 @@ export function Reality({ p, title = true }: { p: Decided; title?: boolean }) {
     if (v === "yes" || v === "no") facts.push(`${tr(key)}: ${tr(v)}`);
   }
   if (p.color === "red" && p.Outcome_Label) facts.push(`${tr("outcome_label")}: ${tr(`outcome_${p.Outcome_Label}`)}`);
-  if (p.team_decision) facts.push(`${tr("team_decision")}: ${tr(`td_${p.team_decision}`)}`);
   return (
     <section className={title ? "section" : undefined}>
       {title && <h2>{tr("reality_title")}</h2>}
@@ -158,6 +185,7 @@ export function Reality({ p, title = true }: { p: Decided; title?: boolean }) {
           <p className="caption" style={{ margin: 0 }}>{tr("reality_explain")}</p>
         </div>
       )}
+      {p.team_decision && <div style={{ marginTop: 12 }}><TeamDecision p={p} /></div>}
       {facts.length > 0 && <div className="facts" style={{ marginTop: 10 }}>{facts.map((f) => <span key={f}>{f}</span>)}</div>}
     </section>
   );

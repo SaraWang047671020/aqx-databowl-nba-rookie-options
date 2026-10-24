@@ -43,7 +43,7 @@ export interface RawPlayer {
   /** research＝研究樣本 2013–2023；oot＝2024 梯次時間外驗證；live＝2025 梯次即時預測 */
   segment?: Segment;
   /** 球團實際的第四年選擇權決定（目前只有 2024 梯次） */
-  team_decision?: "exercised" | "declined" | "waived" | "n/a" | null;
+  team_decision?: "exercised" | "declined" | "waived" | "n/a" | "pending" | null;
 }
 
 export type Segment = "research" | "oot" | "live";
@@ -82,6 +82,8 @@ const ALL_ROWS: RawPlayer[] = [...STUDY, ...NEW_COHORTS];
 export const COHORT_YEARS = Array.from(
   { length: STUDY_YEARS[1] - STUDY_YEARS[0] + 1 }, (_, i) => STUDY_YEARS[0] + i);
 export const OOT_YEAR = 2024;
+/** 2025 梯次球團決定的資料日期（與 scripts/classify_new_cohorts.py 的 TEAM_DECISION_2025_AS_OF 同步） */
+export const TEAM_DECISIONS_AS_OF = "2026-10-24";
 export const LIVE_YEAR = 2025;
 /** 所有可查詢的梯次（含新梯次） */
 export const ALL_YEARS = [...COHORT_YEARS, OOT_YEAR, LIVE_YEAR];

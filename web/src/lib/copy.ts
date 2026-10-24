@@ -371,4 +371,23 @@ export const COPY: Record<string, Entry> = {
     en: "The 2024 and 2025 cohorts were added after the research: stats come from Basketball-Reference, and their forecasts follow the research's yearly re-training procedure (re-running it for 2023 reproduces the research forecasts within 0.03 WS on average).",
     zh: "2024、2025 梯次為研究後新增：數據取自 Basketball-Reference，預測沿用研究的逐年重訓流程（以同流程重算 2023 梯次，與研究預測平均相差 0.03 WS）。",
   },
+
+  // ---- team decision display ----
+  td_pending: { en: "Not announced yet", zh: "尚未公布" },
+  td_title: { en: "What the team actually did", zh: "球團實際決定" },
+  td_option: { en: "Fourth-year team option", zh: "第四年球隊選擇權" },
+  td_agree: { en: "Matches the model", zh: "與模型建議一致" },
+  td_disagree: { en: "Differs from the model", zh: "與模型建議不同" },
+  td_pending_note: { en: "Deadline Nov 2, 2026 · status as of {d}", zh: "期限 2026/11/2・資料截至 {d}" },
+  td_source_2024: { en: "Decided by Oct 31, 2025 (Hoops Rumors)", zh: "已於 2025/10/31 前決定（Hoops Rumors）" },
+  td_na_note: { en: "No comparable fourth-year decision for this player.", zh: "此球員沒有可比較的第四年選擇權決定。" },
+  live_progress: { en: "Teams' calls announced", zh: "球團已公布" },
+  live_progress_v: { en: "{k} / {n}", zh: "{k} / {n} 人" },
+  live_agree: { en: "Agree with the model", zh: "與模型一致" },
+  live_asof: {
+    en: "Team decisions as of {d}, from Hoops Rumors' tracker; they will be updated through the deadline.",
+    zh: "球團決定資料截至 {d}，來源為 Hoops Rumors 的追蹤整理，期限前會持續更新。",
+  },
+  col_team: { en: "Team's call", zh: "球團決定" },
+  col_agree: { en: "Same call?", zh: "一致？" },
 };
