@@ -332,7 +332,7 @@ button, input, select { font: inherit; color: inherit; }
 .caveats { margin: 10px 0 0; padding-left: 20px; color: var(--text-2); }
 .caveats li + li { margin-top: 8px; }
 .tag { display: inline-block; margin-left: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; background: rgba(240,124,34,0.15); color: var(--accent-strong); border-radius: 999px; padding: 2px 8px; }
-tr.row-pick td { background: rgba(240,124,34,0.06); font-weight: 700; }
+tr.row-pick td { background: rgba(240,124,34,0.08); }
 .about-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .about-grid .card p { color: var(--text-2); margin: 0; }
 .about-grid .link-arrow { margin-top: 10px; }

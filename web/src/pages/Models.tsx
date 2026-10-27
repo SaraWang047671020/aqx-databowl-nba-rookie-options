@@ -3,6 +3,7 @@
  */
 import type * as Plotly from "plotly.js";
 import { useMemo } from "react";
+import MetricsTable from "../components/MetricsTable";
 import Plot, { type Figure } from "../components/Plot";
 import { PageHero } from "../components/Shell";
 import { Dot, Section, Table, useT, useUi, type Column } from "../components/ui";
@@ -117,6 +118,10 @@ export default function Models() {
     <>
       <PageHero kicker={tr("nav_models")} title={tr("page_models_t")} desc={tr("page_models_d")} />
       <div className="container page-body">
+        <Section title={tr("mc_metrics_t")} caption={tr("mc_metrics_d")}>
+          <MetricsTable />
+        </Section>
+
         <Section title={tr("mc_table_t")} caption={tr("mc_table_d")}>
           <div className="table-wrap">
             <table>

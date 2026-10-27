@@ -75,6 +75,12 @@ def main():
             "pred": {m: round(float(wide.loc[key, ("Pred_WS", m)]), 3) for m in ORDER},
             "stage": stages, "declines": int(reds),
         })
+    # 完整預測指標（scripts/model_metrics.py）：MSE、MAE、MedianAE、CV RMSE、Train–Test Gap、Spearman
+    mfile = os.path.join(OUT, "holdout_metrics.json")
+    if os.path.exists(mfile):
+        full = json.load(open(mfile, encoding="utf-8"))
+        for rec in models:
+            rec["metrics"] = {k: v for k, v in full[rec["model"]].items() if k != "params"}
     out = {"order": ORDER, "models": models, "players": players,
            "research_lasso_mean_abs_diff": summ["research_lasso_check"]}
     json.dump(out, open(WEB, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))

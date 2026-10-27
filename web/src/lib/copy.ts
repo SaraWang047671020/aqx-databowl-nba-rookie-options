@@ -142,8 +142,8 @@ export const COPY: Record<string, Entry> = {
     zh: "六種迴歸模型在相同條件下比較（同樣的資料、特徵、測試集切分與逐年重訓）。預測準確度幾乎打平，但 Lasso 做出的決策最好（正確率與淨效益最高），且係數少、容易解讀。正式模型：46 項特徵、α ≈ 0.049、測試集 R² 0.577、RMSE 1.79 WS（訓練 1,001 人、測試 251 人）。歷史預測逐年重新訓練，預測各梯次時皆排除該梯次。",
   },
   m_compare_caption: {
-    en: "Same 80/20 test split for every model; accuracy and net benefit come from the 2013–2023 backtest with the same five-gate rules. The earlier notebook comparison (different data versions and splits) is kept in the README.",
-    zh: "所有模型使用同一個 80/20 測試集；正確率與淨效益來自 2013–2023 回測，套用相同的五層決策規則。各筆記本原始的比較結果（資料版本與切分不一）保留在 README。",
+    en: "All six models on the same 80/20 test split; CV metrics use 5-fold cross-validation on the training set. How each model's forecasts translate into decisions (accuracy, net benefit, the 2024 test) is on the model comparison page. The earlier notebook comparison (different data versions and splits) is kept in the README.",
+    zh: "六個模型使用同一個 80/20 測試集；交叉驗證指標為訓練集 5 折。各模型的預測轉成決策後的表現（正確率、淨效益、2024 驗證）請見模型比較頁。各筆記本原始的比較結果（資料版本與切分不一）保留在 README。",
   },
   m_value_t: { en: "4 · From Win Shares to dollars", zh: "4 · 從 Win Shares 換算價值" },
   m_value_body: {
@@ -434,8 +434,8 @@ export const COPY: Record<string, Entry> = {
   mc_outcome: { en: "Year 3 vs. bar", zh: "第三年 vs 基準" },
   mc_why_t: { en: "Why the research uses Lasso", zh: "研究為什麼採用 Lasso" },
   mc_why_d: {
-    en: "On forecasting alone the six models are nearly tied: test R² ranges only from 0.574 to 0.581. The differences appear once forecasts drive decisions. Lasso has the highest net benefit and accuracy, the two tree models decline fewer players and give up net benefit, and Gradient Boosting generalizes worst to the unseen 2024 cohort. With accuracy this close, the research favors Lasso's small, readable set of coefficients, which a front office can audit.",
-    zh: "單看預測，六個模型幾乎打平：測試集 R² 只在 0.574 到 0.581 之間。差異出現在把預測拿來做決策之後：Lasso 的淨效益與正確率最高；兩個樹模型止損的人較少，淨效益也較低；Gradient Boosting 對沒看過的 2024 梯次表現最差。既然準確度如此接近，研究選擇係數少、容易解讀、方便球團檢視的 Lasso。",
+    en: "On forecasting alone the six models are nearly tied: test R² ranges only from 0.574 to 0.581. Lasso has the lowest test MSE/RMSE and the smallest train–test gap (0.005), while the two tree models fit the training data much more tightly (gaps of 0.08 and 0.16), a sign of overfitting. The differences grow once forecasts drive decisions: Lasso has the highest net benefit and accuracy, the tree models decline fewer players and give up net benefit, and Gradient Boosting generalizes worst to the unseen 2024 cohort. Lasso also keeps a small, readable set of coefficients a front office can audit.",
+    zh: "單看預測，六個模型幾乎打平：測試集 R² 只在 0.574 到 0.581 之間。Lasso 的測試 MSE／RMSE 最低、訓練－測試落差最小（0.005）；兩個樹模型則明顯較貼合訓練資料（落差 0.08 與 0.16），有過度配適的跡象。把預測拿來做決策後差異更明顯：Lasso 的淨效益與正確率最高；樹模型止損的人較少、淨效益較低；Gradient Boosting 對沒看過的 2024 梯次表現最差。Lasso 也只保留少數係數、容易解讀，方便球團檢視。",
   },
   mc_note: {
     en: "Re-run for this comparison: the Lasso here differs from the research's published forecasts by {d} WS on average because hyper-parameters are re-tuned under the shared setup. The headline research numbers elsewhere on this site are unchanged.",
@@ -444,4 +444,20 @@ export const COPY: Record<string, Entry> = {
   mc_download: { en: "Download the full table (CSV)", zh: "下載完整表格（CSV）" },
   mc_reached: { en: "reached", zh: "達標" },
   mc_missed: { en: "fell short", zh: "未達標" },
+
+  // ---- full forecast metrics ----
+  mc_metrics_t: { en: "All forecast metrics", zh: "完整預測指標" },
+  mc_metrics_d: {
+    en: "Same 80/20 test split for every model (the columns of the research's original comparison). CV metrics use 5-fold cross-validation on the training set; Train–Test gap = train R² − test R² (larger means more overfitting); Spearman = rank correlation between forecast and actual. Best value in each column is bold.",
+    zh: "所有模型使用同一個 80/20 測試集（對應研究原本比較表的欄位）。交叉驗證指標為訓練集 5 折；訓練－測試落差＝訓練 R² − 測試 R²（越大越可能過度配適）；Spearman＝預測與實際的等級相關。每欄最佳值以粗體標示。",
+  },
+  mc_cv_r2: { en: "CV R²", zh: "交叉驗證 R²" },
+  mc_mse: { en: "MSE", zh: "MSE" },
+  mc_rmse: { en: "RMSE", zh: "RMSE" },
+  mc_mae: { en: "MAE", zh: "MAE" },
+  mc_medae: { en: "MedianAE", zh: "MedianAE" },
+  mc_cv_rmse: { en: "CV RMSE", zh: "交叉驗證 RMSE" },
+  mc_gap: { en: "Train–test gap", zh: "訓練－測試落差" },
+  mc_spearman: { en: "Spearman", zh: "Spearman" },
+  mc_decision_t: { en: "Decision results", zh: "決策結果" },
 };
