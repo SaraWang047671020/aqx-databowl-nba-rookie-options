@@ -6,7 +6,6 @@ import { CourtBackdrop, Icons } from "./Art";
 import { useT } from "./ui";
 
 export const REPO_URL = "https://github.com/SaraWang047671020/aqx-databowl-nba-rookie-options";
-export const STREAMLIT_URL = "https://aqx-databowl-nba-rookie-options-ca5mtsplouqtjfxwktnrku.streamlit.app/";
 
 export type ThemeMode = "auto" | "light" | "dark";
 
@@ -106,7 +105,6 @@ export function Footer() {
           <h4>{tr("footer_project")}</h4>
           <ul>
             <li><a href={REPO_URL} target="_blank" rel="noreferrer">GitHub</a></li>
-            <li><a href={STREAMLIT_URL} target="_blank" rel="noreferrer">Streamlit</a></li>
             <li><span className="muted">Lasso · R² {MODEL_META.r2.toFixed(3)} · RMSE {MODEL_META.rmse.toFixed(2)} WS</span></li>
           </ul>
         </div>

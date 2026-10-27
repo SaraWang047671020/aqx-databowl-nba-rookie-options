@@ -1,5 +1,5 @@
 import { Icons } from "../components/Art";
-import { PageHero, REPO_URL, STREAMLIT_URL } from "../components/Shell";
+import { PageHero, REPO_URL } from "../components/Shell";
 import { useT } from "../components/ui";
 import { href } from "../lib/router";
 import { PHOTO_CREDITS } from "../lib/photos";
@@ -33,11 +33,6 @@ export default function About() {
           <section className="card">
             <h2 className="h3">{tr("about_stack_t")}</h2>
             <p>{tr("about_stack_body")}</p>
-          </section>
-          <section className="card">
-            <h2 className="h3">{tr("about_live_t")}</h2>
-            <p>{tr("about_live_body")}</p>
-            <a className="link-arrow" href={STREAMLIT_URL} target="_blank" rel="noreferrer">Streamlit <Icons.arrow size={16} /></a>
           </section>
         </div>
 

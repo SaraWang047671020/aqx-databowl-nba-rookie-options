@@ -225,8 +225,6 @@ export const COPY: Record<string, Entry> = {
     zh: "本模型對應第四年選擇權；第三年選擇權（一季後決定）需另建僅含新秀季的模型。",
   },
   about_limit_3: { en: "Injury risk is not discounted in the main analysis; games-played features stay inside the model.", zh: "主分析未另扣傷病風險，出賽場次等特徵仍保留在模型中。" },
-  about_live_t: { en: "Also available", zh: "其他版本" },
-  about_live_body: { en: "The original Streamlit version of this app is still online as a backup.", zh: "原本的 Streamlit 版網站仍在線上，作為備用。" },
 
   footer_tag: {
     en: "Turning rookie stats into option decisions. Built for the AQX Sports Analytics Data Bowl 4.0.",
