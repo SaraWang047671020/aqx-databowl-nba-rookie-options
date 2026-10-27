@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rookie Option Lab — video animations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     影片動畫：第 1、2、3、5、6 段（對應 docs/VIDEO_SCRIPT.md）
+     播放：按 1 / 2 / 3 / 5 / 6 播放單段，空白鍵依序播放全部，H 顯示／隱藏說明
+     錄影：Chrome 按 F11 全螢幕後用螢幕錄影錄下
+     ============================================================ */
+  :root {
+    --navy: #08142a; --navy-2: #0f2546; --accent: #f07c22; --accent-2: #ffb15e;
+    --blue: #2a78d6; --green: #1baf7a; --red: #e34948; --ink: #f8fafc; --ink-2: rgba(226,232,240,0.78);
+    --muted: rgba(226,232,240,0.5); --line: rgba(255,255,255,0.14);
+    --display: "Barlow Condensed", "Inter", sans-serif; --font: "Inter", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: var(--font); color: var(--ink); }
+  body.playing { cursor: none; }
+
+  /* 1920×1080 舞台，依視窗等比縮放 */
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    background: radial-gradient(900px 600px at 85% 15%, rgba(240,124,34,0.20), transparent 70%),
+                radial-gradient(900px 700px at 5% 100%, rgba(42,120,214,0.28), transparent 70%),
+                linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #133260 100%); }
+  .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .6s ease; }
+  .scene.on { opacity: 1; visibility: visible; }
+
+  .fade { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .fade.in { opacity: 1; transform: none; }
+  .pop { opacity: 0; transform: scale(.85); transition: opacity .5s ease, transform .6s cubic-bezier(.2,1.4,.4,1); }
+  .pop.in { opacity: 1; transform: none; }
+
+  .display { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: -0.005em; line-height: .95; }
+  .accent { color: var(--accent); }
+  .eyebrow { font-size: 22px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+
+  /* 球場線條（逐步畫出） */
+  .court { position: absolute; color: rgba(255,255,255,0.13); }
+  .court * { stroke-dasharray: 2600; stroke-dashoffset: 2600; transition: stroke-dashoffset 3.2s ease; }
+  .court.draw * { stroke-dashoffset: 0; }
+
+  /* ---------------------------------------------------- 第 1 段 */
+  #s1 .court { width: 2100px; left: 50%; bottom: -380px; transform: translateX(-50%) perspective(1000px) rotateX(58deg); }
+  #s1 .title { position: absolute; left: 140px; top: 120px; font-size: 128px; }
+  .timeline { position: absolute; left: 140px; right: 140px; top: 470px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .year { border-radius: 22px; padding: 34px 34px 30px; border: 2px solid; }
+  .year b { display: block; font-family: var(--display); font-size: 64px; font-weight: 800; }
+  .year span { font-size: 26px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .year.g { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); color: var(--ink-2); }
+  .year.o { border-color: var(--accent); background: rgba(240,124,34,0.14); }
+  .year.o span { color: var(--accent); }
+  .calendar { position: absolute; right: 180px; top: 720px; width: 260px; border-radius: 20px; overflow: hidden; background: #fff; color: #0f172a;
+    box-shadow: 0 24px 60px rgba(0,0,0,.45); text-align: center; transform-origin: top center; }
+  .calendar .m { background: var(--red); color: #fff; font-weight: 800; font-size: 30px; letter-spacing: .12em; padding: 10px 0; }
+  .calendar .d { font-family: var(--display); font-size: 150px; font-weight: 800; line-height: 1.05; position: relative; }
+  .calendar .ring { position: absolute; inset: 14px 30px; border: 8px solid var(--accent); border-radius: 50%;
+    transform: scale(1.4); opacity: 0; transition: all .5s cubic-bezier(.2,1.4,.4,1); }
+  .calendar.mark .ring { transform: scale(1); opacity: 1; }
+  .deadline { position: absolute; left: 140px; top: 790px; font-size: 40px; color: var(--ink-2); max-width: 1180px; line-height: 1.4; }
+  .deadline b { color: var(--ink); }
+
+  /* ---------------------------------------------------- 第 2 段 */
+  .cards { position: absolute; left: 0; right: 0; top: 110px; display: flex; justify-content: center; gap: 120px; }
+  .pcard { width: 520px; height: 680px; border-radius: 28px; border: 3px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.06);
+    position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 40px; transition: border-color .6s, background .6s, transform .6s; }
+  .pcard svg.jersey { width: 220px; height: 220px; color: rgba(255,255,255,0.85); transition: color .6s; }
+  .pcard .label { font-family: var(--display); font-size: 58px; font-weight: 800; text-transform: uppercase; margin-top: 18px; }
+  .pcard .pstats { font-size: 34px; color: var(--ink-2); margin-top: 16px; line-height: 1.6; text-align: center; }
+  .pcard .pstats b { color: var(--ink); }
+  .pcard.bust { border-color: var(--red); background: rgba(227,73,72,0.16); }
+  .pcard.bust svg.jersey { color: var(--red); }
+  .pcard.bloom { border-color: var(--green); background: rgba(27,175,122,0.16); }
+  .pcard.bloom svg.jersey { color: var(--green); }
+  .stamp { position: absolute; top: 500px; left: 50%; font-family: var(--display); font-size: 120px; font-weight: 800; color: var(--red);
+    border: 10px solid var(--red); border-radius: 18px; padding: 0 28px; transform: translateX(-50%) rotate(-14deg) scale(2); opacity: 0;
+    transition: all .35s cubic-bezier(.2,1.4,.4,1); background: rgba(8,20,42,0.6); }
+  .pcard.bust .stamp { opacity: 1; transform: translateX(-50%) rotate(-14deg) scale(1); }
+  .uparrow { position: absolute; right: 40px; top: 60px; width: 110px; height: 110px; color: var(--green); opacity: 0; transform: translateY(40px);
+    transition: all .8s cubic-bezier(.2,1.2,.4,1); }
+  .pcard.bloom .uparrow { opacity: 1; transform: none; }
+  .quote { position: absolute; left: 0; right: 0; bottom: 90px; text-align: center; }
+  .quote p { font-size: 50px; font-weight: 700; }
+  .quote small { display: block; margin-top: 14px; font-size: 28px; color: var(--muted); }
+
+  /* ---------------------------------------------------- 第 3 段 */
+  .steps { position: absolute; left: 120px; right: 120px; top: 420px; display: flex; align-items: center; justify-content: space-between; }
+  .step { width: 330px; text-align: center; }
+  .step .ic { width: 150px; height: 150px; margin: 0 auto 24px; border-radius: 36px; background: rgba(240,124,34,0.16); color: var(--accent);
+    display: grid; place-items: center; border: 2px solid rgba(240,124,34,0.4); }
+  .step .ic svg { width: 78px; height: 78px; }
+  .step h3 { font-family: var(--display); font-size: 64px; font-weight: 800; text-transform: uppercase; }
+  .step p { font-size: 26px; color: var(--ink-2); margin-top: 10px; line-height: 1.4; }
+  .arrow { color: var(--muted); font-size: 64px; }
+  #s3 .head { position: absolute; left: 0; right: 0; top: 200px; text-align: center; font-size: 84px; }
+  #s3 .part2 { position: absolute; inset: 0; }
+  .gates { position: absolute; left: 520px; width: 880px; top: 170px; }
+  .gate { position: relative; height: 128px; margin-bottom: 34px; border-radius: 22px; border: 3px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; padding: 0 36px; gap: 26px; transition: all .35s ease; }
+  .gate .n { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.12); display: grid; place-items: center; font-weight: 800; font-size: 30px; flex: none; }
+  .gate .t { font-size: 40px; font-weight: 700; flex: 1; }
+  .gate .mark { font-size: 44px; font-weight: 800; opacity: 0; transition: opacity .25s; }
+  .gate.fail { border-color: rgba(227,73,72,0.6); }
+  .gate.fail .mark { opacity: 1; color: var(--red); }
+  .gate.pass { border-color: var(--blue); background: rgba(42,120,214,0.22); box-shadow: 0 0 40px rgba(42,120,214,0.45); }
+  .gate.pass .n { background: var(--blue); }
+  .gate.pass .mark { opacity: 1; color: var(--blue); }
+  .floor { position: absolute; left: 520px; width: 880px; top: 830px; height: 140px; border-radius: 22px; border: 3px dashed rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 64px; font-weight: 800; text-transform: uppercase;
+    color: var(--muted); transition: all .4s ease; }
+  .floor.hit { border: 3px solid var(--red); color: #fff; background: rgba(227,73,72,0.28); box-shadow: 0 0 60px rgba(227,73,72,0.5); }
+  .ball { position: absolute; left: 1430px; width: 96px; height: 96px; top: -140px; transition: top .7s cubic-bezier(.55,0,.75,.45); }
+  .ball.settle { transition: top .45s cubic-bezier(.2,1.4,.4,1); }
+  .verdict-tag { position: absolute; left: 1560px; font-family: var(--display); font-size: 72px; font-weight: 800; text-transform: uppercase; opacity: 0;
+    transform: translateX(-20px); transition: all .5s ease; }
+  .verdict-tag.in { opacity: 1; transform: none; }
+  .gates-title { position: absolute; left: 120px; top: 180px; width: 360px; }
+  .gates-title h3 { font-family: var(--display); font-size: 72px; font-weight: 800; text-transform: uppercase; line-height: 1; }
+  .gates-title p { margin-top: 20px; font-size: 30px; color: var(--ink-2); line-height: 1.45; }
+
+  /* ---------------------------------------------------- 第 5 段 */
+  #s5 .head { position: absolute; left: 140px; top: 110px; font-size: 96px; }
+  .stats { position: absolute; left: 140px; right: 140px; top: 330px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px; }
+  .stat { border-radius: 26px; padding: 40px 30px; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14); }
+  .stat b { display: block; font-family: var(--display); font-size: 108px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stat span { display: block; margin-top: 18px; font-size: 30px; color: var(--ink-2); line-height: 1.4; }
+  #s5 .foot { position: absolute; left: 140px; right: 140px; top: 820px; font-size: 38px; color: var(--ink-2); }
+  #s5 .foot b { color: var(--accent); }
+
+  /* ---------------------------------------------------- 第 6 段 */
+  #s6 .court { width: 1900px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  #s6 .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 30px; }
+  .logo { display: flex; align-items: center; gap: 30px; }
+  .logo .mark { width: 130px; height: 130px; border-radius: 34px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: grid; place-items: center;
+    box-shadow: 0 16px 50px rgba(240,124,34,0.45); }
+  .logo .mark svg { width: 80px; height: 80px; color: #fff; }
+  .logo h1 { font-family: var(--display); font-size: 140px; font-weight: 800; text-transform: uppercase; letter-spacing: .01em; }
+  .tagline { font-size: 40px; color: var(--ink-2); }
+  .links { margin-top: 30px; display: flex; flex-direction: column; gap: 18px; font-size: 36px; }
+  .links span { display: inline-flex; align-items: center; gap: 16px; justify-content: center; }
+  .links svg { width: 40px; height: 40px; }
+  .aqx { margin-top: 30px; font-size: 26px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+    border: 2px solid rgba(240,124,34,0.5); padding: 10px 24px; border-radius: 999px; }
+
+  /* 操作說明（錄影時自動隱藏） */
+  #help { position: fixed; left: 16px; bottom: 16px; background: rgba(15,23,42,0.92); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 14px 18px; font-size: 14px; line-height: 1.7; z-index: 10; max-width: 420px; }
+  #help b { color: #ffb15e; }
+  body.playing #help, body.hide-help #help { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ===================== 第 1 段：開場 0:00–0:15 ===================== -->
+  <section class="scene" id="s1">
+    <svg class="court" viewBox="-10 -10 960 520" fill="none" stroke="currentColor" stroke-width="3">
+      <rect x="0" y="0" width="940" height="500" /><line x1="470" y1="0" x2="470" y2="500" />
+      <circle cx="470" cy="250" r="60" /><circle cx="470" cy="250" r="20" />
+      <rect x="0" y="170" width="190" height="160" /><circle cx="190" cy="250" r="60" />
+      <path d="M140 30 A237.5 237.5 0 0 1 140 470" /><line x1="0" y1="30" x2="140" y2="30" /><line x1="0" y1="470" x2="140" y2="470" />
+      <rect x="750" y="170" width="190" height="160" /><circle cx="750" cy="250" r="60" />
+      <path d="M800 30 A237.5 237.5 0 0 0 800 470" /><line x1="800" y1="30" x2="940" y2="30" /><line x1="800" y1="470" x2="940" y2="470" />
+    </svg>
+    <h1 class="display title fade" data-t="title">Keep the rookie,<br /><span class="accent">or cut the loss?</span></h1>
+    <div class="timeline">
+      <div class="year g fade" data-t="y1"><b>Year 1</b><span>Guaranteed</span></div>
+      <div class="year g fade" data-t="y2"><b>Year 2</b><span>Guaranteed</span></div>
+      <div class="year o fade" data-t="y3"><b>Year 3</b><span>Team option</span></div>
+      <div class="year o fade" data-t="y4"><b>Year 4</b><span>Team option</span></div>
+    </div>
+    <p class="deadline fade" data-t="deadline">Each option is decided <b>a year in advance</b> — by <b>October 31</b>.</p>
+    <div class="calendar pop" data-t="cal"><div class="m">OCT</div><div class="d"><span>31</span><i class="ring"></i></div></div>
+  </section>
+
+  <!-- ===================== 第 2 段：問題 0:15–0:30 ===================== -->
+  <section class="scene" id="s2">
+    <div class="cards">
+      <div class="pcard fade" data-t="c1">
+        <svg class="jersey" viewBox="0 0 100 100"><path fill="currentColor" d="M30 8 L42 8 Q50 18 58 8 L70 8 L90 22 L82 40 L74 36 L74 92 L26 92 L26 36 L18 40 L10 22 Z"/><text x="50" y="72" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="34" fill="#08142a">1</text></svg>
+        <div class="label">#1 pick</div>
+        <div class="pstats">Forecast <b>0.68 WS</b><br />Actual <b>0.1 WS</b></div>
+        <div class="stamp">BUST</div>
+      </div>
+      <div class="pcard fade" data-t="c2">
+        <svg class="jersey" viewBox="0 0 100 100"><path fill="currentColor" d="M30 8 L42 8 Q50 18 58 8 L70 8 L90 22 L82 40 L74 36 L74 92 L26 92 L26 36 L18 40 L10 22 Z"/><text x="50" y="72" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="34" fill="#08142a">?</text></svg>
+        <div class="label">Late bloomer</div>
+        <div class="pstats">Cut too early<br /><b>A rival's bargain</b></div>
+        <svg class="uparrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17l6-6 4 4 6-8"/><path d="M15 7h6v6"/></svg>
+      </div>
+    </div>
+    <div class="quote fade" data-t="quote">
+      <p>High picks get extra rope — <span class="accent">just because they were high picks.</span></p>
+      <small>Staw &amp; Hoang, 1995</small>
+    </div>
+  </section>
+
+  <!-- ===================== 第 3 段：解法 0:30–1:00 ===================== -->
+  <section class="scene" id="s3">
+    <div class="part1">
+      <h2 class="display head fade" data-t="head">From box score to <span class="accent">decision</span></h2>
+      <div class="steps">
+        <div class="step fade" data-t="st1"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/><path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg></div><h3>Collect</h3><p>Two seasons of stats<br />+ rookie-window news</p></div>
+        <div class="arrow fade" data-t="a1">→</div>
+        <div class="step fade" data-t="st2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16l4-5 3 3 6-8"/><path d="M15 6h3v3"/></svg></div><h3>Predict</h3><p>Lasso · 46 features<br />1,252 players</p></div>
+        <div class="arrow fade" data-t="a2">→</div>
+        <div class="step fade" data-t="st3"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2c-.5-.9-1.5-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.7 2.7 2.1c1.6.4 2.7.9 2.7 2.2s-1.2 2.1-2.8 2.1c-1.2 0-2.3-.6-2.8-1.5M12 6.3v1.5M12 16.2v1.5"/></svg></div><h3>Price</h3><p>Win Shares → % of cap<br />vs. rookie-scale cost</p></div>
+        <div class="arrow fade" data-t="a3">→</div>
+        <div class="step fade" data-t="st4"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h16l-6 7v6l-4 3v-9z"/></svg></div><h3>Decide</h3><p>Five-gate<br />real-options waterfall</p></div>
+      </div>
+    </div>
+    <div class="part2 fade" data-t="part2">
+      <div class="gates-title"><h3>Five-gate <span class="accent">waterfall</span></h3><p>The first safety net a player passes decides the call.</p></div>
+      <div class="gates">
+        <div class="gate" data-g="1"><span class="n">1</span><span class="t">Clear surplus</span><span class="mark">✕</span></div>
+        <div class="gate" data-g="2"><span class="n">2</span><span class="t">Statistical buffer</span><span class="mark">✕</span></div>
+        <div class="gate" data-g="3"><span class="n">3</span><span class="t">Opportunity cost</span><span class="mark">✕</span></div>
+        <div class="gate" data-g="4"><span class="n">4</span><span class="t">Star-power rescue</span><span class="mark">✕</span></div>
+      </div>
+      <div class="floor">Stop loss</div>
+      <svg class="ball" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f07c22"/><g fill="none" stroke="#5a2a08" stroke-width="4"><path d="M4 50h92M50 4v92"/><path d="M18 18c14 12 14 52 0 64M82 18c-14 12-14 52 0 64"/></g></svg>
+      <div class="verdict-tag" style="color: var(--blue)">Exercise</div>
+    </div>
+  </section>
+
+  <!-- ===================== 第 5 段：成果 2:15–2:45 ===================== -->
+  <section class="scene" id="s5">
+    <h2 class="display head fade" data-t="head">The results</h2>
+    <div class="stats">
+      <div class="stat fade" data-t="n1"><b data-count="93.75" data-fmt="pct" style="color: var(--red)">0</b><span>of stop-loss calls fell short<br />(30 of 32)</span></div>
+      <div class="stat fade" data-t="n2"><b data-count="2" data-fmt="int" style="color: var(--green)">0</b><span>good players wrongly declined,<br />out of 329</span></div>
+      <div class="stat fade" data-t="n3"><b data-count="0.70" data-fmt="r2" style="color: var(--blue)">0</b><span>forecast R² on the unseen<br />2024 cohort</span></div>
+      <div class="stat fade" data-t="n4"><b data-fmt="score" style="color: var(--accent)">0 – 0</b><span>model vs. teams,<br />where they disagreed</span></div>
+    </div>
+    <p class="foot fade" data-t="foot">Six models compared under identical conditions — <b>Lasso made the best decisions.</b></p>
+  </section>
+
+  <!-- ===================== 第 6 段：結尾 2:45–3:00 ===================== -->
+  <section class="scene" id="s6">
+    <svg class="court" viewBox="-10 -10 960 520" fill="none" stroke="currentColor" stroke-width="3">
+      <rect x="0" y="0" width="940" height="500" /><line x1="470" y1="0" x2="470" y2="500" /><circle cx="470" cy="250" r="60" />
+      <rect x="0" y="170" width="190" height="160" /><circle cx="190" cy="250" r="60" /><path d="M140 30 A237.5 237.5 0 0 1 140 470" />
+      <rect x="750" y="170" width="190" height="160" /><circle cx="750" cy="250" r="60" /><path d="M800 30 A237.5 237.5 0 0 0 800 470" />
+    </svg>
+    <div class="center">
+      <div class="logo pop" data-t="logo">
+        <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18"/><path d="M5.6 5.6c3 2.6 3 10.2 0 12.8M18.4 5.6c-3 2.6-3 10.2 0 12.8"/></svg></div>
+        <h1>Rookie Option Lab</h1>
+      </div>
+      <p class="tagline fade" data-t="tag">A transparent, testable rule for one of the NBA's hardest calls.</p>
+      <div class="links fade" data-t="links">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>aqx-databowl-nba-rookie-options.vercel.app</span>
+        <span><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>github.com/SaraWang047671020/aqx-databowl-nba-rookie-options</span>
+      </div>
+      <div class="aqx fade" data-t="aqx">AQX Sports Analytics Data Bowl 4.0</div>
+    </div>
+  </section>
+</div>
+
+<div id="help">
+  <b>Rookie Option Lab — 影片動畫</b><br />
+  按 <b>1</b>（開場 15 秒）、<b>2</b>（問題 15 秒）、<b>3</b>（解法 30 秒）、<b>5</b>（成果 30 秒）、<b>6</b>（結尾 15 秒）播放單段<br />
+  <b>空白鍵</b>：依序播放全部（約 1 分 45 秒）　<b>H</b>：隱藏／顯示說明<br />
+  錄影：先按 <b>F11</b> 全螢幕，開始錄影後再按數字鍵；播放時滑鼠與說明會自動隱藏。
+</div>
+
+<script>
+  // ------------------------------------------------------------ 舞台縮放
+  const stage = document.getElementById("stage");
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.transform = `translate(-50%, -50%) scale(${k})`;
+    stage.style.transformOrigin = "center center";
+  }
+  addEventListener("resize", fit); fit();
+
+  // ------------------------------------------------------------ 計時工具
+  let timers = [], token = 0;
+  const wait = (ms, t) => new Promise((res, rej) => { timers.push(setTimeout(() => (t === token ? res() : rej("cancel")), ms)); });
+  function cancelAll() { token++; timers.forEach(clearTimeout); timers = []; }
+  const $ = (scene, sel) => scene.querySelector(sel);
+  const show = (scene, key) => $(scene, `[data-t="${key}"]`).classList.add("in");
+
+  // 每次播放前把場景還原成初始狀態
+  const pristine = {};
+  document.querySelectorAll(".scene").forEach((s) => (pristine[s.id] = s.innerHTML));
+  function reset(scene) { scene.innerHTML = pristine[scene.id]; }
+
+  function countUp(el, to, fmt, ms) {
+    const start = performance.now();
+    const f = (v) => fmt === "pct" ? `${v.toFixed(2)}%` : fmt === "r2" ? v.toFixed(2) : Math.round(v).toString();
+    function tick(now) {
+      const p = Math.min(1, (now - start) / ms), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = f(to * e);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ------------------------------------------------------------ 各段時間軸
+  const SCENES = {
+    async s1(sc, t) {                                        // 15 秒
+      await wait(100, t); $(sc, ".court").classList.add("draw");
+      await wait(900, t); show(sc, "title");
+      await wait(1600, t); show(sc, "y1");
+      await wait(450, t); show(sc, "y2");
+      await wait(900, t); show(sc, "y3");
+      await wait(450, t); show(sc, "y4");
+      await wait(1300, t); show(sc, "deadline");
+      await wait(900, t); show(sc, "cal");
+      await wait(900, t); $(sc, ".calendar").classList.add("mark");
+      await wait(6400, t);
+    },
+    async s2(sc, t) {                                        // 15 秒
+      await wait(300, t); show(sc, "c1");
+      await wait(500, t); show(sc, "c2");
+      await wait(2200, t); $(sc, '[data-t="c1"]').classList.add("bust");
+      await wait(2000, t); $(sc, '[data-t="c2"]').classList.add("bloom");
+      await wait(2600, t); show(sc, "quote");
+      await wait(7400, t);
+    },
+    async s3(sc, t) {                                        // 30 秒
+      await wait(200, t); show(sc, "head");
+      for (const k of ["st1", "a1", "st2", "a2", "st3", "a3", "st4"]) { await wait(k.startsWith("a") ? 500 : 900, t); show(sc, k); }
+      await wait(4200, t);
+      $(sc, ".part1").style.transition = "opacity .6s"; $(sc, ".part1").style.opacity = 0;
+      await wait(700, t); show(sc, "part2");
+      const ball = $(sc, ".ball"), gates = [...sc.querySelectorAll(".gate")];
+      const gateTop = (i) => 170 + i * 162 + 16;           // 對齊各閘門
+      // 第一顆球：停在第 1 道 → 執行
+      await wait(1200, t); ball.style.top = gateTop(0) + "px";
+      await wait(700, t); gates[0].classList.add("pass"); gates[0].querySelector(".mark").textContent = "✓"; $(sc, ".verdict-tag").style.top = (gateTop(0) - 4) + "px"; $(sc, ".verdict-tag").classList.add("in");
+      await wait(2600, t);
+      // 重置成第二顆球：四道都穿過 → 止損
+      $(sc, ".verdict-tag").classList.remove("in"); gates[0].classList.remove("pass"); gates[0].querySelector(".mark").textContent = "✕";
+      ball.style.transition = "none"; ball.style.top = "-140px"; void ball.offsetWidth; ball.style.transition = "";
+      await wait(900, t);
+      for (let i = 0; i < 4; i++) {
+        ball.style.top = gateTop(i) + "px"; await wait(650, t);
+        gates[i].classList.add("fail"); await wait(450, t);
+      }
+      ball.style.top = "852px"; await wait(650, t);
+      $(sc, ".floor").classList.add("hit");
+      await wait(5400, t);
+    },
+    async s5(sc, t) {                                        // 30 秒
+      await wait(200, t); show(sc, "head");
+      const nums = [...sc.querySelectorAll("[data-count], [data-fmt='score']")];
+      for (let i = 0; i < 4; i++) {
+        await wait(i === 0 ? 1200 : 3200, t); show(sc, `n${i + 1}`);
+        const el = nums[i];
+        if (el.dataset.fmt === "score") {
+          await wait(500, t);
+          let m = 0, n = 0; el.textContent = "0 – 0";
+          for (const who of ["m", "t", "m", "t", "m", "t", "m"]) { await wait(300, t); who === "m" ? m++ : n++; el.textContent = `${m} – ${n}`; }
+        } else {
+          countUp(el, parseFloat(el.dataset.count), el.dataset.fmt, 1600);
+        }
+      }
+      await wait(3600, t); show(sc, "foot");
+      await wait(9000, t);
+    },
+    async s6(sc, t) {                                        // 15 秒
+      await wait(100, t); $(sc, ".court").classList.add("draw");
+      await wait(600, t); show(sc, "logo");
+      await wait(1400, t); show(sc, "tag");
+      await wait(1600, t); show(sc, "links");
+      await wait(1200, t); show(sc, "aqx");
+      await wait(10000, t);
+    },
+  };
+
+  async function play(id) {
+    cancelAll();
+    const t = token;
+    document.querySelectorAll(".scene").forEach((s) => s.classList.remove("on"));
+    const sc = document.getElementById(id);
+    reset(sc);
+    void sc.offsetWidth;
+    sc.classList.add("on");
+    document.body.classList.add("playing");
+    try { await SCENES[id](sc, t); } catch (e) { if (e !== "cancel") throw e; }
+  }
+
+  async function playAll() {
+    for (const id of ["s1", "s2", "s3", "s5", "s6"]) {
+      const t = token + 1;
+      await play(id);
+      if (token !== t) return;
+    }
+  }
+
+  addEventListener("keydown", (e) => {
+    const map = { "1": "s1", "2": "s2", "3": "s3", "5": "s5", "6": "s6" };
+    if (map[e.key]) play(map[e.key]);
+    else if (e.key === " ") { e.preventDefault(); playAll(); }
+    else if (e.key.toLowerCase() === "h") document.body.classList.toggle("hide-help");
+    else if (e.key === "Escape") { cancelAll(); document.body.classList.remove("playing"); }
+  });
+
+  // 開啟時先顯示第 1 段的第一個畫面，方便確認畫面比例
+  document.getElementById("s1").classList.add("on");
+</script>
+</body>
+</html>
