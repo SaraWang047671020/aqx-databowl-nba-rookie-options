@@ -3,16 +3,15 @@ import { PageHero } from "../components/Shell";
 import { LIGHT_VAR, TINT_VAR, useT } from "../components/ui";
 import { href } from "../lib/router";
 import type { Light } from "../lib/engine";
+import modelData from "../data/models.json";
 
-// 原始模型比較（README「Model comparison」表）
-const MODELS = [
-  { name: "Lasso", cv: 0.5562, test: 0.5756, rmse: 1.5411, gap: -0.2112, pick: true },
-  { name: "Elastic Net", cv: 0.5562, test: 0.5788, rmse: 1.5487, gap: -0.2098 },
-  { name: "PLS", cv: 0.5486, test: 0.5816, rmse: 1.5436, gap: -0.1852 },
-  { name: "Ridge", cv: 0.553, test: 0.591, rmse: 1.5696, gap: -0.1357 },
-  { name: "Gradient Boost", cv: 0.5718, test: 0.5626, rmse: 1.6916, gap: 0.1775 },
-  { name: "Random Forest", cv: 0.557, test: 0.528, rmse: 1.7572, gap: 0.2411 },
-];
+// 統一條件下的六模型比較（與「模型比較」頁同一份數據：scripts/compare_models.py）
+interface ModelRow {
+  model: string;
+  holdout: { test_r2: number; test_rmse: number };
+  backtest: { rmse: number; accuracy: number; net: number };
+}
+const MODELS = (modelData.order as string[]).map((n) => (modelData.models as ModelRow[]).find((m) => m.model === n)!);
 
 const GATES: { stage: string; color: Light; cond: string; d: string }[] = [
   { stage: "profit", color: "blue", cond: "Net surplus > 0", d: "g1_d" },
@@ -68,16 +67,18 @@ export default function Method() {
             <table>
               <thead>
                 <tr>
-                  <th>{tr("col_model")}</th><th className="num">{tr("col_cv_r2")}</th><th className="num">{tr("col_test_r2")}</th>
-                  <th className="num">RMSE</th><th className="num">{tr("col_gap")}</th>
+                  <th>{tr("col_model")}</th><th className="num">{tr("mc_test_r2")}</th><th className="num">{tr("mc_test_rmse")}</th>
+                  <th className="num">{tr("mc_bt_rmse")}</th><th className="num">{tr("mc_acc")}</th><th className="num">{tr("mc_net")}</th>
                 </tr>
               </thead>
               <tbody>
                 {MODELS.map((m) => (
-                  <tr key={m.name} className={m.pick ? "row-pick" : undefined}>
-                    <td>{m.name}{m.pick && <span className="tag">{tr("selected")}</span>}</td>
-                    <td className="num">{m.cv.toFixed(4)}</td><td className="num">{m.test.toFixed(4)}</td>
-                    <td className="num">{m.rmse.toFixed(4)}</td><td className="num">{m.gap.toFixed(4)}</td>
+                  <tr key={m.model} className={m.model === "Lasso" ? "row-pick" : undefined}>
+                    <td>{m.model}{m.model === "Lasso" && <span className="tag">{tr("selected")}</span>}</td>
+                    <td className="num">{m.holdout.test_r2.toFixed(3)}</td><td className="num">{m.holdout.test_rmse.toFixed(2)}</td>
+                    <td className="num">{m.backtest.rmse.toFixed(2)}</td>
+                    <td className="num">{(m.backtest.accuracy * 100).toFixed(1)}%</td>
+                    <td className="num">{m.backtest.net >= 0 ? "+" : ""}{m.backtest.net.toFixed(1)}</td>
                   </tr>
                 ))}
               </tbody>

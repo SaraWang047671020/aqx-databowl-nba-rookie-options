@@ -138,12 +138,12 @@ export const COPY: Record<string, Entry> = {
   },
   m_model_t: { en: "3 · Forecasting year-3 Win Shares", zh: "3 · 預測第三年 Win Shares" },
   m_model_body: {
-    en: "Six regressors were compared. Lasso was selected for its accuracy and the smallest train–test gap: 46 features, α ≈ 0.049, test R² 0.577, RMSE 1.79 WS (1,001 training / 251 test players). Historical forecasts are re-trained year by year and exclude the cohort being predicted.",
-    zh: "比較 6 種迴歸模型後選用 Lasso，因為準確度佳且訓練與測試落差最小：46 項特徵、α ≈ 0.049、測試集 R² 0.577、RMSE 1.79 WS（訓練 1,001 人、測試 251 人）。歷史預測逐年重新訓練，預測各梯次時皆排除該梯次。",
+    en: "Six regressors were compared under identical conditions (same data, features, test split and yearly re-training). Forecast accuracy is nearly tied, but Lasso produces the best decisions (highest accuracy and net benefit) with a small, readable set of coefficients. Deployed model: 46 features, α ≈ 0.049, test R² 0.577, RMSE 1.79 WS (1,001 training / 251 test players). Historical forecasts are re-trained year by year and exclude the cohort being predicted.",
+    zh: "六種迴歸模型在相同條件下比較（同樣的資料、特徵、測試集切分與逐年重訓）。預測準確度幾乎打平，但 Lasso 做出的決策最好（正確率與淨效益最高），且係數少、容易解讀。正式模型：46 項特徵、α ≈ 0.049、測試集 R² 0.577、RMSE 1.79 WS（訓練 1,001 人、測試 251 人）。歷史預測逐年重新訓練，預測各梯次時皆排除該梯次。",
   },
   m_compare_caption: {
-    en: "Original comparison (indicative: models were not all run on identical data versions and splits).",
-    zh: "原始比較結果（僅供參考：各模型的資料版本與切分不完全相同）。",
+    en: "Same 80/20 test split for every model; accuracy and net benefit come from the 2013–2023 backtest with the same five-gate rules. The earlier notebook comparison (different data versions and splits) is kept in the README.",
+    zh: "所有模型使用同一個 80/20 測試集；正確率與淨效益來自 2013–2023 回測，套用相同的五層決策規則。各筆記本原始的比較結果（資料版本與切分不一）保留在 README。",
   },
   m_value_t: { en: "4 · From Win Shares to dollars", zh: "4 · 從 Win Shares 換算價值" },
   m_value_body: {
