@@ -1,6 +1,7 @@
 import { Icons } from "../components/Art";
 import { PageHero, REPO_URL, STREAMLIT_URL } from "../components/Shell";
 import { useT } from "../components/ui";
+import { href } from "../lib/router";
 import { PHOTO_CREDITS } from "../lib/photos";
 
 const SOURCES = [
@@ -42,6 +43,7 @@ export default function About() {
 
         <section className="chapter">
           <h2 className="h3">{tr("about_data_t")}</h2>
+          <a className="link-arrow" style={{ marginTop: 0 }} href={href("references")}>{tr("refs_link")} <Icons.arrow size={16} /></a>
           <ul className="caveats">
             {SOURCES.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.name}</a></li>)}
           </ul>

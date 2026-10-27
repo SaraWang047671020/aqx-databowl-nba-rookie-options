@@ -92,6 +92,7 @@ export default function Method() {
           <ul className="caveats">
             {[5, 6, 7, 1, 2, 3, 4].map((i) => <li key={i}>{tr(`m_caveat_${i}`)}</li>)}
           </ul>
+          <a className="link-arrow" href={href("references")}>{tr("refs_link")} <Icons.arrow size={16} /></a>
         </section>
       </div>
     </>

@@ -460,4 +460,23 @@ export const COPY: Record<string, Entry> = {
   mc_gap: { en: "Train–test gap", zh: "訓練－測試落差" },
   mc_spearman: { en: "Spearman", zh: "Spearman" },
   mc_decision_t: { en: "Decision results", zh: "決策結果" },
+
+  // ---- references ----
+  nav_refs: { en: "References", zh: "參考文獻" },
+  page_refs_t: { en: "References", zh: "參考文獻" },
+  page_refs_d: {
+    en: "Works cited in the research report, plus the data sources the site added after the research.",
+    zh: "研究報告引用的文獻，以及網站在研究之後新增分析所使用的資料來源。",
+  },
+  refs_report_t: { en: "Cited in the research report", zh: "研究報告參考文獻" },
+  refs_report_d: {
+    en: "As listed in the final report (Chicago author-date style).",
+    zh: "依研究報告定稿所列（Chicago 作者－年份格式）。",
+  },
+  refs_site_t: { en: "Additional sources used by this site", zh: "網站新增資料來源" },
+  refs_site_d: {
+    en: "Used for the 2024 and 2025 cohorts (out-of-time test and live calls) and the teams' actual option decisions, which are not part of the report.",
+    zh: "用於 2024、2025 梯次（時間外驗證與即時預測）以及球團實際選擇權決定，這些內容不在研究報告中。",
+  },
+  refs_link: { en: "See all references", zh: "查看參考文獻" },
 };

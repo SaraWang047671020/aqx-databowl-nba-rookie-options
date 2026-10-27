@@ -99,6 +99,7 @@ export function Footer() {
           <ul>
             <li><a href={href("home")}>{tr("nav_home")}</a></li>
             {NAV.map((n) => <li key={n.route}><a href={href(n.route)}>{tr(n.key)}</a></li>)}
+            <li><a href={href("references")}>{tr("nav_refs")}</a></li>
           </ul>
         </div>
         <div>
