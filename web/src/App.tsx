@@ -13,12 +13,13 @@ import Live from "./pages/Live";
 import Lookup, { type Selection } from "./pages/Lookup";
 import Manual from "./pages/Manual";
 import Method from "./pages/Method";
+import Models from "./pages/Models";
 import Report from "./pages/Report";
 import WhatIf from "./pages/WhatIf";
 
 const NAV_TITLE: Record<string, string> = {
   method: "nav_method", player: "nav_player", cohort: "nav_cohort", results: "nav_results",
-  simulator: "nav_simulator", new: "nav_new", about: "nav_about", report: "nav_report", live: "nav_live",
+  simulator: "nav_simulator", new: "nav_new", about: "nav_about", report: "nav_report", live: "nav_live", models: "nav_models",
 };
 
 function load<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
@@ -84,6 +85,7 @@ export default function App() {
         {route === "cohort" && <Cohort decided={decidedAll} year={cohortYear} setYear={setCohortYear} />}
         {route === "results" && <Backtest decided={decided} all={decidedAll} />}
         {route === "live" && <Live decided={decidedAll} />}
+        {route === "models" && <Models />}
         {route === "simulator" && <WhatIf base={decided} />}
         {route === "new" && <Manual result={manualResult} setResult={setManualResult} />}
         {route === "report" && <Report p={reportPlayer} decided={decidedAll} isManual={reportManual} />}

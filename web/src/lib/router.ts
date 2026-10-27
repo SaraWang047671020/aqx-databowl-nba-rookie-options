@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 /** 以網址 hash 切換頁面（#/player、#/report/2014/Anthony%20Bennett），不需額外套件，也能直接分享連結。 */
-export const ROUTES = ["home", "method", "player", "cohort", "results", "simulator", "new", "about", "report", "live"] as const;
+export const ROUTES = ["home", "method", "player", "cohort", "results", "simulator", "new", "about", "report", "live", "models"] as const;
 export type Route = (typeof ROUTES)[number];
 export interface Location { route: Route; args: string[] }
 

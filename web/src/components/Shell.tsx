@@ -18,6 +18,7 @@ export const NAV: { route: Route; key: string }[] = [
   { route: "live", key: "nav_live" },
   { route: "simulator", key: "nav_simulator" },
   { route: "new", key: "nav_new" },
+  { route: "models", key: "nav_models" },
   { route: "method", key: "nav_method" },
   { route: "about", key: "nav_about" },
 ];

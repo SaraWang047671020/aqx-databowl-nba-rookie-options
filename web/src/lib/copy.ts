@@ -390,4 +390,58 @@ export const COPY: Record<string, Entry> = {
   },
   col_team: { en: "Team's call", zh: "球團決定" },
   col_agree: { en: "Same call?", zh: "一致？" },
+
+  // ---- model comparison page ----
+  nav_models: { en: "Models", zh: "模型比較" },
+  page_models_t: { en: "Six models, one decision rule", zh: "六種模型，同一套決策規則" },
+  page_models_d: {
+    en: "The research compared six regressors. Here each one is re-run under identical conditions — same data, features, yearly re-training and five-gate rules — so any difference in the decisions comes from the model alone.",
+    zh: "研究比較過六種迴歸模型。這裡讓每個模型在完全相同的條件下重跑：同樣的資料、特徵、逐年重訓與五層決策規則，所以決策上的差異只來自模型本身。",
+  },
+  mc_table_t: { en: "Head-to-head results", zh: "結果總表" },
+  mc_table_d: {
+    en: "Test metrics use one shared 80/20 split. Backtest covers the 329 first-round picks of 2013–2023 (306 with a year-3 record); each cohort is predicted by a model trained without it. The statistical buffer is 1.25 × each model's own test RMSE. Best value in each column is bold.",
+    zh: "測試集指標使用同一個 80/20 切分。回測涵蓋 2013–2023 梯次 329 名首輪新秀（306 人有第三年紀錄），每個梯次都由排除該梯次訓練的模型預測。統計容錯為 1.25 × 各模型自己的測試集 RMSE。每欄最佳值以粗體標示。",
+  },
+  mc_model: { en: "Model", zh: "模型" },
+  mc_test_r2: { en: "Test R²", zh: "測試 R²" },
+  mc_test_rmse: { en: "Test RMSE", zh: "測試 RMSE" },
+  mc_bt_rmse: { en: "Backtest RMSE", zh: "回測 RMSE" },
+  mc_split: { en: "Exercise / keep / decline", zh: "執行／保留／止損" },
+  mc_hit: { en: "Decline hit rate", zh: "止損命中率" },
+  mc_fn: { en: "Good players declined", zh: "誤殺好球員" },
+  mc_acc: { en: "Accuracy", zh: "正確率" },
+  mc_net: { en: "Net benefit", zh: "淨效益" },
+  mc_oot_r2: { en: "2024 R²", zh: "2024 R²" },
+  mc_oot_hit: { en: "2024 decline hit", zh: "2024 止損命中" },
+  mc_selected: { en: "used in the research", zh: "研究採用" },
+  mc_split_t: { en: "How cautious is each model?", zh: "各模型有多保守？" },
+  mc_split_d: {
+    en: "Decision mix across the 329 research-sample players. More declines catch more busts but risk cutting good players.",
+    zh: "329 名研究樣本的決策分布。止損越多，抓到的水貨越多，但也越可能誤殺好球員。",
+  },
+  mc_acc_t: { en: "Forecast accuracy", zh: "預測準確度" },
+  mc_acc_d: {
+    en: "Backtest RMSE (lower is better) on the 306 players with a year-3 record.",
+    zh: "306 名有第三年紀錄球員的回測 RMSE（越低越好）。",
+  },
+  mc_agree_t: { en: "Where the models disagree", zh: "模型意見分歧的球員" },
+  mc_agree_d: {
+    en: "{a} of {n} research-sample players get the same keep-or-decline call from all six models. The table lists the {k} players on whom they split, with what actually happened.",
+    zh: "研究樣本 {n} 人中，有 {a} 人六個模型的「保留或止損」判斷完全一致。下表列出意見分歧的 {k} 人，以及實際結果。",
+  },
+  mc_declines: { en: "Models declining", zh: "建議止損的模型數" },
+  mc_outcome: { en: "Year 3 vs. bar", zh: "第三年 vs 基準" },
+  mc_why_t: { en: "Why the research uses Lasso", zh: "研究為什麼採用 Lasso" },
+  mc_why_d: {
+    en: "On forecasting alone the six models are nearly tied: test R² ranges only from 0.574 to 0.581. The differences appear once forecasts drive decisions. Lasso has the highest net benefit and accuracy, the two tree models decline fewer players and give up net benefit, and Gradient Boosting generalizes worst to the unseen 2024 cohort. With accuracy this close, the research favors Lasso's small, readable set of coefficients, which a front office can audit.",
+    zh: "單看預測，六個模型幾乎打平：測試集 R² 只在 0.574 到 0.581 之間。差異出現在把預測拿來做決策之後：Lasso 的淨效益與正確率最高；兩個樹模型止損的人較少，淨效益也較低；Gradient Boosting 對沒看過的 2024 梯次表現最差。既然準確度如此接近，研究選擇係數少、容易解讀、方便球團檢視的 Lasso。",
+  },
+  mc_note: {
+    en: "Re-run for this comparison: the Lasso here differs from the research's published forecasts by {d} WS on average because hyper-parameters are re-tuned under the shared setup. The headline research numbers elsewhere on this site are unchanged.",
+    zh: "此頁為統一條件下重跑的結果：因超參數在共同設定下重新搜尋，這裡的 Lasso 與研究正式預測平均相差 {d} WS。網站其他頁面的研究數字不受影響。",
+  },
+  mc_download: { en: "Download the full table (CSV)", zh: "下載完整表格（CSV）" },
+  mc_reached: { en: "reached", zh: "達標" },
+  mc_missed: { en: "fell short", zh: "未達標" },
 };

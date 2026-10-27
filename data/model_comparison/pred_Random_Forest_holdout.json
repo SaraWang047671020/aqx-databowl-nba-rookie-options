@@ -1,0 +1,13 @@
+{
+ "test_r2": 0.5739756038991626,
+ "test_rmse": 1.7924238280250957,
+ "test_mae": 1.306234933626861,
+ "cv_r2": 0.5558605020041839,
+ "params": {
+  "model__n_estimators": 500,
+  "model__min_samples_split": 30,
+  "model__min_samples_leaf": 10,
+  "model__max_features": 0.3,
+  "model__max_depth": 5
+ }
+}

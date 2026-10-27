@@ -1,6 +1,7 @@
 import { Icons, type IconName } from "../components/Art";
 import { PageHero } from "../components/Shell";
 import { LIGHT_VAR, TINT_VAR, useT } from "../components/ui";
+import { href } from "../lib/router";
 import type { Light } from "../lib/engine";
 
 // 原始模型比較（README「Model comparison」表）
@@ -82,7 +83,9 @@ export default function Method() {
               </tbody>
             </table>
           </div>
-          <p className="caption" style={{ marginTop: 8 }}>{tr("m_compare_caption")}</p>
+          <p className="caption" style={{ marginTop: 8 }}>
+            {tr("m_compare_caption")} <a href={href("models")}>{tr("page_models_t")} →</a>
+          </p>
         </Chapter>
 
         <Chapter icon="value" title={tr("m_value_t")}>
