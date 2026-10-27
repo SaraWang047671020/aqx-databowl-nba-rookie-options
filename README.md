@@ -8,7 +8,8 @@
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats)
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/yhsarawang/nba-players-first-two-year-average-data)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
 Under the NBA's Collective Bargaining Agreement, a first-round pick's rookie-scale contract guarantees two seasons; the third and fourth seasons are **team options**. Front offices must decide whether to keep a young player after watching only one or two seasons, and those decisions are prone to the **sunk-cost fallacy** — high picks get more rope simply because they were high picks (Staw & Hoang, 1995).
 
@@ -55,8 +56,8 @@ Sentiment (RoBERTa)      (6 models compared → Lasso)
                  │
        ┌─────────┼──────────────┐
        ▼                        ▼
-Historical backtest      Streamlit app + AI scouting reports
-                         (webapp/app.py)
+Historical backtest      Web app + AI scouting reports
+                         (web/, on Vercel)
 ```
 
 ![Workflow](results/no_injury/workflow.png)
@@ -203,24 +204,31 @@ Accuracy is 66.27% for the earlier 166 players and 69.29% for the later 140. Thi
 
 ## 5. Interactive web app
 
-`webapp/` is a bilingual (English / 繁體中文) Streamlit app. It applies the same rules and the same star-power bar as the research analysis and reproduces the 226 / 70 / 33 result exactly.
+### 🏀 [aqx-databowl-nba-rookie-options.vercel.app](https://aqx-databowl-nba-rookie-options.vercel.app/)
 
-- **🔎 Player lookup** — pick a cohort (2013–2023) and a player to see each gate's condition, actual value and threshold, and how the call compares with the player's real year-3 output and whether the team kept him
-- **🗺️ Cohort explorer** — contract cost vs. expected value for every first-round pick in a cohort; players above the break-even line are projected bargains
-- **📊 Backtest** — decisions by cohort, stop-loss hit rate, net benefit, the keep/decline confusion matrix and the full stop-loss list
-- **🎛️ What-if** — move the statistical buffer, star-power percentile and rescue tolerance to re-run all 329 decisions live and see who changes
-- **✍️ New player** — enter a player's first-two-season stats and draft pick for an instant forecast and decision
-- **🧠 AI scouting report** — an OpenAI model (`gpt-5-mini` by default) writes a 3–5 sentence report grounded only in the player's numbers and decision (`webapp/report_generator.py`)
+`web/` is **Rookie Option Lab**, a bilingual (English / 繁體中文) React + TypeScript site on Vercel, with light and dark mode. The Lasso model and the full decision engine run in the browser and reproduce the research results exactly (226 / 70 / 33 for the 2013–2023 cohorts).
+
+| Page | What it shows |
+|---|---|
+| **Home** | The live board of this year's calls, the headline backtest numbers and the out-of-time finding |
+| **Players** | Pick a cohort (2013–2025) and a player: the year-3 Win Shares forecast with its error band, the five-gate decision path, and a hindsight check against his real year-3 output and the team's actual fourth-year decision |
+| **AI scouting report** | A printable, shareable report per player (`#/report/<cohort>/<player>`). Computed sections (forecast, gates, comparable players) are combined with analysis written by an OpenAI model (`gpt-5-mini` by default) that only sees what a team knew on decision day |
+| **Cohorts** | Contract cost vs. expected value for every first-round pick in a cohort; players above the break-even line are projected bargains |
+| **Results** | The 329-player backtest (stop-loss hit rate, net benefit, confusion matrix, stop-loss list) and the **2024 out-of-time test** against teams' real decisions |
+| **Live 2026** | The model's calls for the 2025 cohort (2024 draft), published before the November 2, 2026 deadline and compared with each team decision as it is announced |
+| **Simulator** | Move the statistical buffer, star-power percentile and rescue tolerance to re-run all 329 decisions and see who changes |
+| **New player** | Enter first-two-season stats and a draft slot for an instant forecast and decision |
+| **Models** | Six regressors re-run under identical conditions: forecast metrics (R², MSE, RMSE, MAE, cross-validation, train–test gap) and the decisions each one would make |
+| **Method** | Option timing, valuation formulas, the five gates, model metrics and caveats |
+| **About / References** | Data sources, photo credits, limitations and the full reference list |
 
 "Cohort" means the calendar year the rookie season ended: the 2020 cohort is the 2019 draft class.
 
-### Vercel version (`web/`)
+How it is built:
 
-`web/` is the same app rebuilt as a static React + TypeScript site for Vercel. Everything except the AI report runs in the browser:
-
-- `web/scripts/export_data.py` exports the study sample, the Lasso pipeline (median imputation → standardization → coefficients) and the UI text to JSON. It asserts that the exported linear formula reproduces the scikit-learn pipeline.
-- `web/src/lib/engine.ts` ports the waterfall, backtest and what-if logic. `npm run verify` checks it against the Python version: all 329 decisions, every backtest metric, manual-player predictions and the 0.5× sensitivity case (68 declines) must match.
-- `web/api/report.ts` is the only server code: a Vercel Function that calls OpenAI with the key from the `OPENAI_API_KEY` environment variable, so the key never reaches the browser.
+- `web/scripts/export_data.py` exports the study sample, the new 2024–2025 cohorts, the Lasso pipeline (median imputation → standardization → coefficients) and the UI text to JSON. It asserts that the exported linear formula reproduces the scikit-learn pipeline.
+- `web/src/lib/engine.ts` ports the waterfall, backtest and what-if logic. `npm run verify` checks it against the Python version: all 329 research decisions plus the 59 new-cohort decisions, every backtest metric, manual-player predictions and the 0.5× sensitivity case (68 declines) must match.
+- `web/api/scout.ts` is the only server code: a Vercel Function that calls OpenAI with the key from the `OPENAI_API_KEY` environment variable, so the key never reaches the browser.
 
 ```bash
 cd web
@@ -231,6 +239,8 @@ npm run verify               # browser engine vs. Python results
 ```
 
 To deploy, import the GitHub repo in Vercel, set **Root Directory** to `web`, and add `OPENAI_API_KEY` under Environment Variables.
+
+> `webapp/` holds the earlier Streamlit prototype of the same tool. It is kept for reference and is no longer maintained.
 
 ---
 
@@ -252,7 +262,11 @@ To deploy, import the GitHub repo in Vercel, set **Root Directory** to `web`, an
 │       ├── build_feature_dataset.ipynb
 │       ├── scrape_player_news.ipynb
 │       └── sentiment_analysis.ipynb
-├── webapp/                       # Streamlit decision app
+├── web/                          # Rookie Option Lab website (React + TypeScript, Vercel)
+│   ├── src/                      # pages, components, browser decision engine
+│   ├── api/scout.ts              # AI scouting report (Vercel Function)
+│   └── scripts/                  # data export and engine verification
+├── webapp/                       # earlier Streamlit prototype (not maintained)
 │   ├── app.py                    # UI and tabs
 │   ├── decision_engine.py        # valuation, waterfall, backtest
 │   ├── charts.py                 # Plotly charts
@@ -279,14 +293,9 @@ To deploy, import the GitHub repo in Vercel, set **Root Directory** to `web`, an
 
 ### Run the web app
 
-```bash
-cd webapp
-pip install -r requirements.txt
-cp .env.example .env        # optional: add your OPENAI_API_KEY for AI scouting reports
-streamlit run app.py
-```
+See [5. Interactive web app](#5-interactive-web-app): `cd web && npm install && npm run dev`.
 
-The trained model is already in `webapp/models/`. To retrain it from `data/NBA_Normalized_Final.csv`, run `python train_model.py`.
+The trained model is in `webapp/models/`. To retrain it from `data/NBA_Normalized_Final.csv`, run `python webapp/train_model.py`, then `python web/scripts/export_data.py` to refresh the site's data.
 
 ### Reproduce the research analysis
 
@@ -307,5 +316,5 @@ The notebooks under `notebooks/` form the full pipeline: run `data_pipeline/` fi
 - **Scraper stability:** the news scraper depends on search-results page structure and may need updating when it changes.
 - **Backtest scope:** all 329 players are classified and 306 can be scored; team-outcome labels mostly cover the declined group. `results/no_injury/` is the source of truth; other notebooks and CSVs are kept as a record of the work.
 - **Injury data:** an earlier version discounted players by the number of absences longer than 27 days, but missing records cannot be read as good health and a missed game is not always an injury. Since a complete injury history could not be verified, the discount is not part of the final model. With the WS forecasts fixed and a 0.8 weight, it improved 4 calls and worsened 2 among the earlier 166 players, and improved only one (Hunter) among the later 140; removing that player or his cohort erased the advantage. That is not evidence of a stable effect, nor proof that it is pure chance. The 46 features include no separate games-played column, so the model does not claim to capture health risk. See `results/injury_supplement/`.
-- **Done:** AI scouting reports, originally listed as future work, are implemented in `webapp/report_generator.py`.
+- **Done:** AI scouting reports, originally listed as future work, are implemented in `web/api/scout.ts`.
 - **Planned:** track the real ROI of "exercise" decisions, and test whether the approach transfers to other leagues (WNBA, overseas leagues).

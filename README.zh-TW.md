@@ -8,7 +8,8 @@
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats)
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/yhsarawang/nba-players-first-two-year-average-data)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
 在 NBA 勞資協議（CBA）下，首輪新秀合約的第三、四年是球隊的「Team Option」。傳統球探決策常受限於**沉沒成本謬誤（高順位迷思）**與**主觀偏見**，導致球隊套牢在高薪水貨、鎖死薪資空間。
 
@@ -32,7 +33,7 @@
 - [二、機器學習模型訓練與比較](#二機器學習模型訓練與比較)
 - [三、Win Share 預測與球隊選擇權決策引擎](#三win-share-預測與球隊選擇權決策引擎)
 - [四、歷史回測驗證結果](#四歷史回測驗證結果)
-- [五、Streamlit 決策系統網站](#五streamlit-決策系統網站)
+- [五、決策系統網站](#五決策系統網站)
 - [專案結構](#專案結構)
 - [環境設定與執行方式](#環境設定與執行方式)
 - [限制與未來規劃](#限制與未來規劃)
@@ -55,8 +56,8 @@ Kaggle 歷史數據 ─┐
                │
      ┌─────────┼─────────────┐
      ▼                       ▼
-歷史案例回測驗證      Streamlit 網站 + AI 球探報告
-(validate_declined_players.py)   (webapp/app.py)
+歷史案例回測驗證      決策系統網站 + AI 球探報告
+(validate_declined_players.py)   (web/，部署於 Vercel)
 ```
 
 ## 資料集
@@ -195,24 +196,33 @@ $$Net\ Value\ Surplus = Adjusted\ Pred\ Salary\ Percent - Est\ Cost\ Percent$$
 
 ---
 
-## 五、Streamlit 決策系統網站
+## 五、決策系統網站
 
-`webapp/` 是 Streamlit 互動網站（中英文切換），決策規則與聲量門檻母體與研究主分析一致，329 人結果同為 226／70／33。
+### 🏀 [aqx-databowl-nba-rookie-options.vercel.app](https://aqx-databowl-nba-rookie-options.vercel.app/)
 
-- **🔎 球員查詢**：選擇梯次（2013–2023）與球員，逐層顯示五層瀑布流的條件、實際值與門檻，並與實際第三年 WS、球團留用狀況比對
-- **🗺️ 梯次總覽**：合約成本 vs. 預期價值散佈圖，虛線上方為預期獲利
-- **📊 歷史回測**：燈號分布、止損命中率、淨效益、四格對錯表與止損名單
-- **🎛️ 參數模擬**：調整統計容錯倍數、聲量門檻與救場容錯，即時重跑 329 人回測
-- **✍️ 輸入新球員**：輸入前兩季數據與選秀順位，即時預測與決策
-- **🧠 AI 球探報告**：串接 OpenAI API（預設 `gpt-5-mini`），依決策結果生成 3–5 句球探報告（`webapp/report_generator.py`）
+`web/` 是 **Rookie Option Lab** 網站，以 React + TypeScript 開發、部署在 Vercel，支援中英文切換與深淺色模式。Lasso 模型與完整決策引擎都在瀏覽器執行，結果與研究主分析完全一致（2013–2023 梯次 226／70／33）。
 
-### Vercel 版（`web/`）
+| 分頁 | 內容 |
+|---|---|
+| **首頁** | 今年度即時預測看板、回測重點數字、時間外驗證發現 |
+| **球員查詢** | 選擇梯次（2013–2025）與球員：第三年 WS 預測與誤差區間、五層瀑布流決策路徑，並與實際第三年 WS、球隊真實的第四年選擇權決定比對 |
+| **AI 球探報告** | 每位球員一份可列印、可分享的報告（`#/report/<梯次>/<球員>`）。計算區塊（預測、各層門檻、相似球員）搭配 OpenAI 模型（預設 `gpt-5-mini`）撰寫的分析，AI 只看得到決策當天球隊已知的資訊 |
+| **梯次總覽** | 合約成本 vs. 預期價值散佈圖，虛線上方為預期獲利 |
+| **回測成果** | 329 人回測（止損命中率、淨效益、四格對錯表、止損名單），以及 **2024 梯次時間外驗證**與球隊真實決定的對照 |
+| **即時預測 2026** | 2025 梯次（2024 年選秀）的模型建議，在 2026 年 11 月 2 日期限前公開，並隨球隊公布決定逐一比對 |
+| **參數模擬** | 調整統計容錯倍數、聲量門檻與救場容錯，即時重跑 329 人決策並列出改變的球員 |
+| **輸入新球員** | 輸入前兩季數據與選秀順位，即時預測與決策 |
+| **模型比較** | 六種模型在相同條件下重跑：預測指標（R²、MSE、RMSE、MAE、交叉驗證、訓練與測試差距）與各自的決策結果 |
+| **方法說明** | 選擇權時程、定價公式、五層門檻、模型指標與研究限制 |
+| **關於／參考文獻** | 資料來源、照片授權、限制與完整參考文獻 |
 
-`web/` 是同一個網站以 React + TypeScript 重寫的靜態版本，部署在 Vercel。除了 AI 報告以外，所有計算都在瀏覽器完成：
+「梯次」指新秀球季結束的年份：2020 梯次即 2019 年選秀。
 
-- `web/scripts/export_data.py`：把研究樣本、Lasso 模型（中位數補值 → 標準化 → 係數）與介面文字匯出成 JSON，並檢查匯出的線性公式與 scikit-learn 模型預測一致。
-- `web/src/lib/engine.ts`：移植瀑布流、回測與參數模擬邏輯。`npm run verify` 會與 Python 版逐項比對：329 人決策、所有回測指標、手動輸入預測、0.5 倍容錯（68 人止損）都必須一致。
-- `web/api/report.ts`：唯一的伺服器端程式，是一個 Vercel Function，從環境變數 `OPENAI_API_KEY` 讀取金鑰呼叫 OpenAI，金鑰不會傳到瀏覽器。
+技術架構：
+
+- `web/scripts/export_data.py`：把研究樣本、2024–2025 新梯次、Lasso 模型（中位數補值 → 標準化 → 係數）與介面文字匯出成 JSON，並檢查匯出的線性公式與 scikit-learn 模型預測一致。
+- `web/src/lib/engine.ts`：移植瀑布流、回測與參數模擬邏輯。`npm run verify` 會與 Python 版逐項比對：研究樣本 329 人與新梯次 59 人的決策、所有回測指標、手動輸入預測、0.5 倍容錯（68 人止損）都必須一致。
+- `web/api/scout.ts`：唯一的伺服器端程式，是一個 Vercel Function，從環境變數 `OPENAI_API_KEY` 讀取金鑰呼叫 OpenAI，金鑰不會傳到瀏覽器。
 
 ```bash
 cd web
@@ -223,6 +233,8 @@ npm run verify               # 比對瀏覽器端與 Python 版結果
 ```
 
 部署方式：在 Vercel 匯入此 GitHub repo，**Root Directory** 設為 `web`，並在 Environment Variables 加上 `OPENAI_API_KEY`。
+
+> `webapp/` 是同一套工具較早的 Streamlit 原型，保留作為參考，已不再維護。
 
 ---
 
@@ -244,7 +256,11 @@ nba_player_year3_option_predict/
 │       ├── build_feature_dataset.ipynb
 │       ├── scrape_player_news.ipynb
 │       └── sentiment_analysis.ipynb
-├── webapp/                       # Streamlit 決策系統網站
+├── web/                          # Rookie Option Lab 網站（React + TypeScript，Vercel）
+│   ├── src/                      # 分頁、元件、瀏覽器端決策引擎
+│   ├── api/scout.ts              # AI 球探報告（Vercel Function）
+│   └── scripts/                  # 資料匯出與引擎比對
+├── webapp/                       # 較早的 Streamlit 原型（已不維護）
 │   ├── app.py
 │   ├── decision_engine.py
 │   ├── charts.py
@@ -272,15 +288,11 @@ nba_player_year3_option_predict/
 
 ## 環境設定與執行方式
 
-### 跑 Streamlit 網站
+### 跑網站
 
-```bash
-cd webapp
-pip install -r requirements.txt
-cp .env.example .env        # 填入你自己的 OPENAI_API_KEY（LLM 球探報告用，非必要）
-python train_model.py       # 從 data/NBA_Normalized_Final.csv 訓練 Lasso 模型
-streamlit run app.py
-```
+見[五、決策系統網站](#五決策系統網站)：`cd web && npm install && npm run dev`。
+
+訓練好的模型在 `webapp/models/`。若要從 `data/NBA_Normalized_Final.csv` 重新訓練，執行 `python webapp/train_model.py`，再執行 `python web/scripts/export_data.py` 更新網站資料。
 
 ### 重跑決策圖 / 回測驗證
 
@@ -299,5 +311,5 @@ python scripts/research_no_injury.py          # 研究主分析，產出 results
 - **爬蟲穩定性**：新聞爬蟲依賴 Google 搜尋結果頁與抗封鎖機制，Chrome / 搜尋頁結構更動時需要調整爬蟲邏輯。
 - **回測樣本**：329 人均產生分類，306 人有 WS 標籤可評分；球團後續處置標註仍主要限於紅區。研究數值以 `results/no_injury/` 為準，其他 notebooks 與 CSV 是留存的實作紀錄。
 - **傷病資料的研究嘗試**：研究初期曾以單次缺賽超過 27 天的次數建立折價指標，但缺漏不能解讀為健康，未出賽也不必然是受傷。補查後仍無法認證完整傷病史，因此未採用於最終公式。固定 WS 預測並試算 0.8 權重時，早期 166 人有 4 人改善、2 人惡化；後期 140 人只改善 Hunter 一人。排除該人或其梯次後優勢歸零，不足以證明穩定效果，也不能證明純屬偶然。正式 46 項特徵沒有獨立出賽場次欄位，不宣稱已完整涵蓋健康風險。補充紀錄見 `results/injury_supplement/`。
-- 已完成：LLM 球探報告生成（原規劃的未來項目，已在 `webapp/report_generator.py` 實作）。
+- 已完成：LLM 球探報告生成（原規劃的未來項目，已在 `web/api/scout.ts` 實作）。
 - 規劃中：擴大回測涵蓋「建議執行」個案的實際 ROI 追蹤、支援更多聯盟（如 WNBA / 海外聯賽）的可轉移性測試。
