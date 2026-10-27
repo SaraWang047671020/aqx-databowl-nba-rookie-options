@@ -18,7 +18,11 @@ python · scikit-learn · pandas · transformers (RoBERTa) · react · typescrip
 ## About the project (paste everything below into Devpost)
 
 ## Inspiration
-Every first-round pick signs a rookie-scale contract: two guaranteed seasons, then team options for years three and four, each due by October 31 a year in advance. The fourth-year call comes after only two seasons of evidence. Keep a bust and you burn cap space; cut a late bloomer and you hand a rival a bargain. Research on the NBA's sunk-cost bias (Staw & Hoang, 1995) shows that teams give high picks extra rope simply because they were high picks. We wanted to replace that instinct with a transparent, testable rule.
+Every first-round pick signs a rookie-scale contract: two guaranteed seasons, then team options for years three and four, each due by October 31 a year in advance. The fourth-year call comes after only two seasons of evidence. Keep a bust and you burn cap space; cut a late bloomer and you hand a rival a bargain. Research on the NBA's sunk-cost bias (Staw & Hoang, 1995) shows that teams give high picks extra rope simply because they were high picks.
+
+We noticed that a team option is literally an option, the same idea as a financial call option. The team pays a fixed "strike price" (the rookie-scale salary set by the draft slot) for the right, not the obligation, to keep an asset whose future value is uncertain: the player's production. Real-options theory (Myers, 1977) tells us how to think about that choice. Exercise when the expected value clearly beats the strike; keep the option alive when the gap is within the uncertainty, because waiting has value; let it expire when it is deep out of the money.
+
+To apply that logic, we first had to **put a price on a player**, and that starts with forecasting his on-court value. At its core, this is a sports-analytics problem: **can two seasons of box-score and advanced stats predict a player's year-3 Win Shares?** We built that forecast and converted it into a share of the salary cap, so a player's projected production and his contract can be compared in the same units. That turns a gut call into a transparent, testable pricing rule.
 
 ## What it does
 Rookie Option Lab turns two seasons of NBA data into an option recommendation in four steps:
