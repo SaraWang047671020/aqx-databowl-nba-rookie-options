@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { forecastStrip } from "../lib/charts";
-import { RMSE, TEAM_DECISIONS_AS_OF, waterfallSteps, type Decided, type Light, type Step } from "../lib/engine";
+import { draftYear, RMSE, TEAM_DECISIONS_AS_OF, waterfallSteps, type Decided, type Light, type Step } from "../lib/engine";
 import { plain, t, type Lang } from "../lib/i18n";
 import { href } from "../lib/router";
 import { Icons } from "./Art";
@@ -18,6 +18,35 @@ export function useT() {
 
 export const LIGHT_VAR: Record<Light, string> = { blue: "var(--blue)", green: "var(--green)", red: "var(--red)" };
 export const TINT_VAR: Record<Light, string> = { blue: "var(--blue-tint)", green: "var(--green-tint)", red: "var(--red-tint)" };
+
+/** 燈號顏色；不適用選擇權決策的球員（延後出賽）改用中性灰 */
+export const lightOf = (p: Decided) => (p.optionInScope ? LIGHT_VAR[p.color] : "var(--muted)");
+export const tintOf = (p: Decided) => (p.optionInScope ? TINT_VAR[p.color] : "rgba(100, 116, 139, 0.16)");
+
+/** 表格裡的模型建議：燈號 + 文字；不適用者顯示「不適用」 */
+export function CallLabel({ p }: { p: Decided }) {
+  const tr = useT();
+  if (!p.optionInScope) return <span style={{ color: "var(--muted)" }}>{tr("call_na")}</span>;
+  return <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}><Dot color={p.color} />{tr(`color_${p.color}`)}</span>;
+}
+export const callText = (p: Decided, tr: ReturnType<typeof useT>) => (p.optionInScope ? tr(`color_${p.color}`) : tr("call_na"));
+
+/** 延後出賽說明：選擇權期限依合約年份，早於模型所需的兩季 */
+export function DelayedNotice({ p }: { p: Decided }) {
+  const tr = useT();
+  if (!p.delayed_debut) return null;
+  const d = draftYear(p);
+  return (
+    <div className="notice info delayed-notice">
+      <div>
+        <b>{tr("delayed_t")}</b>
+        <p style={{ margin: "4px 0 0", fontWeight: 400 }}>
+          {tr(p.optionInScope ? "delayed_research" : "delayed_oot", { d, y: p.year_start, o: d + 2 })}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function Dot({ color }: { color: Light }) {
   return <span className="dot" style={{ background: LIGHT_VAR[color] }} aria-hidden />;
@@ -57,9 +86,9 @@ export function Forecast({ p, showActual }: { p: Decided; showActual: boolean })
   const range = tr("fc_range", { lo: p.Pred_WS - RMSE, hi: p.Pred_WS + RMSE }).split(/<\/?b>/);
   return (
     <div className="grid-fc">
-      <div className="fc-card" style={{ background: TINT_VAR[p.color], borderColor: LIGHT_VAR[p.color] }}>
+      <div className="fc-card" style={{ background: tintOf(p), borderColor: lightOf(p) }}>
         <div className="fc-kicker">{tr("fc_kicker")}</div>
-        <div className="fc-big" style={{ color: LIGHT_VAR[p.color] }}>{p.Pred_WS.toFixed(2)}<small>WS</small></div>
+        <div className="fc-big" style={{ color: lightOf(p) }}>{p.Pred_WS.toFixed(2)}<small>WS</small></div>
         <div className="fc-line">{range[0]}<b>{range[1]}</b>{range[2]}</div>
         <div className="fc-line"><b>{vs}</b></div>
         <div className="fc-note">{tr("fc_note")}</div>
@@ -77,8 +106,8 @@ export function DecisionCard({ p, showActual = true }: { p: Decided; showActual?
   return (
     <div>
       <Forecast p={p} showActual={showActual} />
-      <div className="verdict" style={{ background: TINT_VAR[p.color], borderColor: LIGHT_VAR[p.color] }}>
-        <Dot color={p.color} />{plain(tr(`verdict_${p.stage}`))}
+      <div className="verdict" style={{ background: tintOf(p), borderColor: lightOf(p) }}>
+        {p.optionInScope ? <><Dot color={p.color} />{plain(tr(`verdict_${p.stage}`))}</> : tr("verdict_na")}
       </div>
       <div className="grid-3" style={{ marginTop: 12 }}>
         <Metric label={tr("m_value")} value={`${p.Pred_Salary_Share_Percent.toFixed(2)}%`} />
@@ -149,7 +178,7 @@ export function TeamDecision({ p }: { p: Decided }) {
         {announced ? (teamKeep ? "✓ " : "✕ ") : "… "}{tr(`td_${d}`)}
       </div>
       <p className="caption" style={{ margin: 0 }}>
-        {d === "n/a" ? tr("td_na_note")
+        {d === "n/a" ? (p.delayed_debut ? tr("td_delayed_note", { o: draftYear(p) + 2 }) : tr("td_na_note"))
           : p.segment === "live" ? tr("td_pending_note", { d: TEAM_DECISIONS_AS_OF }) : tr("td_source_2024")}
       </p>
     </div>

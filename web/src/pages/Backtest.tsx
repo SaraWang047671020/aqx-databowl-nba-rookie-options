@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import Plot from "../components/Plot";
 import { PageHero } from "../components/Shell";
-import { Dot, Metric, Section, Table, useT, useUi, type Column } from "../components/ui";
+import { CallLabel, callText, Metric, Section, Table, useT, useUi, type Column } from "../components/ui";
 import { predVsActual, yearlyStacked } from "../lib/charts";
 import { MODEL_META, OOT_YEAR, RMSE, summarize, type Decided } from "../lib/engine";
 import PlayerTable from "./PlayerTable";
@@ -30,8 +30,8 @@ function OutOfTime({ all }: { all: Decided[] }) {
   const cols: Column<Decided>[] = [
     { key: "pick", label: tr("pick"), value: (p) => p.DraftRank, num: true },
     { key: "player", label: tr("player"), value: (p) => p.Player },
-    { key: "model", label: tr("oot_model_call"), value: (p) => tr(`color_${p.color}`),
-      render: (p) => <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}><Dot color={p.color} />{tr(`color_${p.color}`)}</span> },
+    { key: "model", label: tr("oot_model_call"), value: (p) => callText(p, tr),
+      render: (p) => <CallLabel p={p} /> },
     { key: "team", label: tr("team_decision"), value: (p) => tr(`td_${p.team_decision}`) },
     { key: "actual", label: tr("m_actual_ws"), value: (p) => p.Year3_WS, num: true },
     { key: "bar", label: tr("m_dtw"), value: (p) => Number(p.Dynamic_Truth_WS.toFixed(2)), num: true },

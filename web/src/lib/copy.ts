@@ -337,8 +337,8 @@ export const COPY: Record<string, Entry> = {
   },
   oot_t: { en: "Out-of-time test: the 2024 cohort", zh: "時間外驗證：2024 梯次" },
   oot_d: {
-    en: "The research covers 2013–2023. The 2024 cohort (2023 draft) was never seen by the model: it is trained only on earlier cohorts, and the players' year-3 season (2025-26) has since been played. This is the strict out-of-time test the report lists as a limitation.",
-    zh: "研究範圍是 2013–2023 梯次。2024 梯次（2023 年選秀）模型完全沒看過：只用更早的梯次訓練，而這批球員的第三季（2025-26）已經打完。這正是報告列為研究限制的「完整時間外驗證」。",
+    en: "The research covers 2013–2023. The 2024 cohort (the 2023 draft, plus Chet Holmgren, whose debut was delayed a year) was never seen by the model: it is trained only on earlier cohorts, and the players' year-3 season (2025-26) has since been played. This is the strict out-of-time test the report lists as a limitation.",
+    zh: "研究範圍是 2013–2023 梯次。2024 梯次（2023 年選秀，加上延後一年出賽的 Chet Holmgren）模型完全沒看過：只用更早的梯次訓練，而這批球員的第三季（2025-26）已經打完。這正是報告列為研究限制的「完整時間外驗證」。",
   },
   oot_r2: { en: "Forecast R² (n = {n})", zh: "預測 R²（{n} 人）" },
   oot_rmse: { en: "Forecast RMSE", zh: "預測 RMSE" },
@@ -354,8 +354,8 @@ export const COPY: Record<string, Entry> = {
   oot_team: { en: "Team", zh: "球團" },
   oot_model_call: { en: "Model call", zh: "模型建議" },
   oot_note: {
-    en: "Small sample (30 players with a year-3 record). Hood-Schifino and Holmgren have no comparable team decision (left the rookie deal / 2022 draft class).",
-    zh: "樣本小（30 人有第三年紀錄）。Hood-Schifino、Holmgren 沒有可比較的球團決定（已不在新秀合約／2022 年選秀）。",
+    en: "Small sample (30 players with a year-3 record). Chet Holmgren (2022 draft, missed 2022-23 injured) counts in the forecast test but not in the decision statistics: his option deadline came after one season played. Hood-Schifino has no comparable team decision (he left his rookie deal).",
+    zh: "樣本小（30 人有第三年紀錄）。Chet Holmgren（2022 年選秀，2022-23 因傷缺席）計入預測檢驗，但不列入決策統計：他的選擇權期限在只出賽一季時就到了。Hood-Schifino 已不在新秀合約，沒有可比較的球團決定。",
   },
   home_live_kicker: { en: "Live before the deadline", zh: "期限前即時預測" },
   board_title_live: { en: "2025 cohort · live calls", zh: "2025 梯次・即時預測" },
@@ -365,6 +365,10 @@ export const COPY: Record<string, Entry> = {
     zh: "沒看過的 2024 梯次時間外驗證：預測 R² {r2}，有第三年紀錄的止損建議全數未達標。",
   },
   cta_live: { en: "See the live calls", zh: "看即時預測" },
+  m_caveat_8: {
+    en: "Delayed debuts: the cohort follows a player's first season played, but option deadlines follow the contract. Six research players signed and then missed their first season (Nerlens Noel, Joel Embiid, Ben Simmons, Harry Giles, Michael Porter Jr., Dylan Windler), so their real fourth-year deadline came before two played seasons. The backtest keeps them, as the report does; all six were exercise calls, so the stop-loss results are unaffected. In the new cohorts, Chet Holmgren is forecast but gets no option call.",
+    zh: "延後出賽：梯次依首個出賽球季計，但選擇權期限依合約年份。研究樣本中有 6 位球員簽約後第一季未出賽（Nerlens Noel、Joel Embiid、Ben Simmons、Harry Giles、Michael Porter Jr.、Dylan Windler），他們真正的第四年選擇權期限早於打滿兩季。回測依研究報告保留這 6 人；6 人皆為「執行」，止損結果不受影響。新梯次的 Chet Holmgren 只做預測，不給選擇權建議。",
+  },
   m_caveat_7: {
     en: "The 2024 and 2025 cohorts were added after the research: stats come from Basketball-Reference, and their forecasts follow the research's yearly re-training procedure (re-running it for 2023 reproduces the research forecasts within 0.03 WS on average).",
     zh: "2024、2025 梯次為研究後新增：數據取自 Basketball-Reference，預測沿用研究的逐年重訓流程（以同流程重算 2023 梯次，與研究預測平均相差 0.03 WS）。",
@@ -379,6 +383,30 @@ export const COPY: Record<string, Entry> = {
   td_pending_note: { en: "Deadline Nov 2, 2026 · status as of {d}", zh: "期限 2026/11/2・資料截至 {d}" },
   td_source_2024: { en: "Decided by Oct 31, 2025 (Hoops Rumors)", zh: "已於 2025/10/31 前決定（Hoops Rumors）" },
   td_na_note: { en: "No comparable fourth-year decision for this player.", zh: "此球員沒有可比較的第四年選擇權決定。" },
+  td_delayed_note: {
+    en: "Decided in October {o}, after only one season played, so it is not compared with the model.",
+    zh: "球團在 {o} 年 10 月、他只出賽一季時就已決定，因此不與模型比較。",
+  },
+
+  // ---- delayed debut (drafted, signed, but missed the first contract season) ----
+  delayed_t: { en: "Delayed debut: the option clock started before he played", zh: "延後出賽：選擇權時程早於出賽" },
+  delayed_oot: {
+    en: "Drafted in {d}, he did not play in his first contract season. His cohort follows his first season played ({y}), but the option deadlines follow his contract: the fourth-year call was due in October {o}, after only one season played, before the two seasons this model needs. The year-3 forecast below is still a valid test, but there is no option recommendation, and he is left out of the cohort's decision statistics.",
+    zh: "他在 {d} 年選秀，簽約後第一季未出賽。梯次依首個出賽球季計為 {y}，但選擇權期限跟著合約走：第四年選擇權在 {o} 年 10 月就要決定，當時他只打了一季，模型需要的兩季數據還沒有。下方的第三年 WS 預測仍是有效的檢驗，但不給選擇權建議，也不列入該梯次的決策統計。",
+  },
+  delayed_research: {
+    en: "Drafted in {d}, he did not play in his first contract season, so his cohort follows his first season played ({y}). His real fourth-year option deadline (October {o}) came before he had played two seasons. As in the research report, the backtest still evaluates the call as if it were made after two played seasons.",
+    zh: "他在 {d} 年選秀，簽約後第一季未出賽，因此梯次依首個出賽球季計為 {y}。他真正的第四年選擇權期限（{o} 年 10 月）早於打滿兩季；回測沿用研究報告的處理，仍以「打完兩季後決定」評估。",
+  },
+  call_na: { en: "No call", zh: "不適用" },
+  verdict_na: {
+    en: "No option recommendation: the real deadline came before two seasons were played",
+    zh: "不給選擇權建議：真正的期限早於打滿兩季",
+  },
+  cohort_note: {
+    en: "Cohort = the calendar year a player's first NBA season ended (2020 cohort = 2019 draft). A player whose debut was delayed joins the cohort of his first season played.",
+    zh: "梯次＝首個 NBA 球季結束之年份（2020 梯次＝2019 年選秀）；延後出賽的球員歸入實際出賽的梯次。",
+  },
   live_progress: { en: "Teams' calls announced", zh: "球團已公布" },
   live_progress_v: { en: "{k} / {n}", zh: "{k} / {n} 人" },
   live_agree: { en: "Agree with the model", zh: "與模型一致" },

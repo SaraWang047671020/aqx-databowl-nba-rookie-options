@@ -471,3 +471,4 @@ details.fold > div { padding: 4px 14px 14px; }
 .refs li { padding: 10px 0 10px 2em; text-indent: -2em; border-bottom: 1px solid var(--border); color: var(--text-2); line-height: 1.7; overflow-wrap: anywhere; }
 .refs li:last-child { border-bottom: 0; }
 .refs a { word-break: break-all; }
+.delayed-notice { margin-bottom: 16px; }

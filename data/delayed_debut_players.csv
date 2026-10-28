@@ -1,0 +1,20 @@
+Player,draft_year,year_start,DraftRank,contract_delayed,note
+Jonas Valančiūnas,2011,2013,5,False,
+Donatas Motiejūnas,2011,2013,20,False,
+Nikola Mirotić,2011,2015,23,False,
+Nerlens Noel,2013,2015,6,True,"ACL tear, missed 2013-14"
+Lucas Nogueira,2013,2015,16,False,
+Josh Huestis,2014,2016,29,False,
+Joel Embiid,2014,2017,3,True,"foot injuries, missed 2014-15 and 2015-16"
+Dario Šarić,2014,2017,12,False,
+Ben Simmons,2016,2018,1,True,"foot fracture, missed 2016-17"
+Bogdan Bogdanović,2014,2018,27,False,
+Ante Žižić,2016,2018,23,False,
+Guerschon Yabusele,2016,2018,16,False,
+Furkan Korkmaz,2016,2018,26,False,
+Harry Giles,2017,2019,20,True,"knee injuries, sat out 2017-18"
+Michael Porter Jr.,2018,2020,14,True,"back surgery, missed 2018-19"
+Anžejs Pasečņiks,2017,2020,25,False,
+Chuma Okeke,2019,2021,16,False,
+Dylan Windler,2019,2021,26,True,"leg stress reaction, missed 2019-20"
+Leandro Bolmaro,2020,2022,23,False,

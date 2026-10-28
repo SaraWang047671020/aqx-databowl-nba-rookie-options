@@ -44,7 +44,14 @@ export interface RawPlayer {
   segment?: Segment;
   /** 球團實際的第四年選擇權決定（目前只有 2024 梯次） */
   team_decision?: "exercised" | "declined" | "waived" | "n/a" | "pending" | null;
+  /** 實際選秀年（研究樣本只標註延後出賽者，其餘為梯次前一年） */
+  draft_year?: number;
+  /** 簽約後第一季未出賽（多為傷病）：梯次依首個出賽球季計，但選擇權期限依合約年份，早於模型所需的兩季 */
+  delayed_debut?: boolean;
 }
+
+/** 實際選秀年：梯次＝首個出賽球季，一般為選秀隔年 */
+export const draftYear = (p: Pick<RawPlayer, "year_start" | "draft_year">): number => p.draft_year ?? p.year_start - 1;
 
 export type Segment = "research" | "oot" | "live";
 
@@ -60,6 +67,12 @@ export interface Decided extends RawPlayer {
   hasYear3: boolean;
   callCorrect: boolean | null;
   actualNet: number | null;
+  /**
+   * 選擇權決策是否適用。新梯次中延後出賽的球員（如 Chet Holmgren），真正的第四年選擇權期限只出賽一季，
+   * 模型無法在決策日給建議：保留 WS 預測，但不給燈號、不列入決策統計。
+   * 研究樣本中的同類球員（scripts/delayed_debut.py）維持研究報告的處理，僅在頁面上註明。
+   */
+  optionInScope: boolean;
 }
 
 export interface Params {
@@ -144,6 +157,7 @@ function finish(p: RawPlayer, spi: number, floor: number, buffer: number, starMu
   return {
     ...p, spi, floor, ans, buffer, starMultiplier, stage, color, hasSentiment, hasYear3,
     callCorrect: metBar === null ? null : (color !== "red") === metBar,
+    optionInScope: !(p.delayed_debut && p.segment !== "research"),
     actualNet: hasYear3
       ? (p.Year3_WS as number) * (TEAM_COUNT * p.BRI_Factor / TOTAL_GAMES * 100) - p.Est_Cost_Percent
       : null,
@@ -189,7 +203,8 @@ export interface Summary {
   labeled: number; TP: number; FP: number; TN: number; FN: number; accuracy: number; redMae: number;
 }
 
-export function summarize(x: Decided[]): Summary {
+export function summarize(all: Decided[]): Summary {
+  const x = all.filter((p) => p.optionInScope);
   const red = x.filter((p) => p.color === "red");
   const redLabeled = red.filter((p) => p.hasYear3);
   let avoided = 0, sacrificed = 0;

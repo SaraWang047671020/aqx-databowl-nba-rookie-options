@@ -1,4 +1,4 @@
-import { Dot, Table, useT, type Column } from "../components/ui";
+import { CallLabel, callText, Table, useT, type Column } from "../components/ui";
 import type { Decided } from "../lib/engine";
 
 export function playerColumns(tr: ReturnType<typeof useT>, opts: { cohort?: boolean; decision?: boolean; outcome?: boolean } = {}) {
@@ -10,8 +10,8 @@ export function playerColumns(tr: ReturnType<typeof useT>, opts: { cohort?: bool
   );
   if (opts.decision !== false) {
     cols.push(
-      { key: "decision", label: tr("decision"), value: (p) => tr(`color_${p.color}`),
-        render: (p) => <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}><Dot color={p.color} />{tr(`color_${p.color}`)}</span> },
+      { key: "decision", label: tr("decision"), value: (p) => callText(p, tr),
+        render: (p) => <CallLabel p={p} /> },
       { key: "stage", label: tr("col_stage"), value: (p) => tr(`stage_${p.stage}`) },
     );
   }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { PageHero } from "../components/Shell";
-import { DecisionCard, Dot, LIGHT_VAR, Reality, ReportLink, TINT_VAR, useT, Waterfall } from "../components/ui";
-import { ALL_YEARS, LIVE_YEAR, OOT_YEAR, type Decided } from "../lib/engine";
+import { CallLabel, DecisionCard, DelayedNotice, lightOf, Reality, ReportLink, tintOf, useT, Waterfall } from "../components/ui";
+import { ALL_YEARS, draftYear, LIVE_YEAR, OOT_YEAR, type Decided } from "../lib/engine";
 
 export interface Selection { year: number; player: string }
 
@@ -66,18 +66,19 @@ export default function Lookup({ decided, sel, setSel }: {
 
       <div className="container page-body">
         <div className="player-head">
-          <div className="player-avatar" style={{ background: TINT_VAR[p.color], color: LIGHT_VAR[p.color] }}>
+          <div className="player-avatar" style={{ background: tintOf(p), color: lightOf(p) }}>
             #{p.DraftRank}
           </div>
           <div>
             <h2 className="player-name">{p.Player}</h2>
-            <p className="player-meta">{tr("cohort_option", { y: p.year_start, d: p.year_start - 1 })} · {tr("pick_n", { n: p.DraftRank })}</p>
+            <p className="player-meta">{tr("cohort_option", { y: p.year_start, d: draftYear(p) })} · {tr("pick_n", { n: p.DraftRank })}</p>
           </div>
-          <span className="badge-light" style={{ background: TINT_VAR[p.color], color: LIGHT_VAR[p.color], borderColor: LIGHT_VAR[p.color] }}>
-            <Dot color={p.color} />{tr(`color_${p.color}`)}
+          <span className="badge-light" style={{ background: tintOf(p), color: lightOf(p), borderColor: lightOf(p) }}>
+            <CallLabel p={p} />
           </span>
         </div>
 
+        <DelayedNotice p={p} />
         <DecisionCard p={p} />
         <div className="grid-2">
           <Waterfall p={p} />

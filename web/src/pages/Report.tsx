@@ -5,9 +5,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CourtBackdrop, Icons } from "../components/Art";
 import Plot from "../components/Plot";
-import { Dot, Forecast, gateRule, LIGHT_VAR, Metric, Reality, Table, TeamDecision, TINT_VAR, useT, useUi, Waterfall, type Column } from "../components/ui";
+import { DelayedNotice, Dot, Forecast, gateRule, lightOf, Metric, Reality, Table, TeamDecision, tintOf, useT, useUi, Waterfall, type Column } from "../components/ui";
 import { cohortScatter } from "../lib/charts";
-import { cohortRank, comparables, MODEL_META, RMSE, waterfallSteps, type Decided } from "../lib/engine";
+import { cohortRank, comparables, draftYear, MODEL_META, RMSE, waterfallSteps, type Decided } from "../lib/engine";
 import { plain } from "../lib/i18n";
 import { href } from "../lib/router";
 
@@ -91,6 +91,7 @@ export default function Report({ p, decided, isManual }: { p: Decided | null; de
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           lang, stage: p.stage, player: p.Player, cohort: p.year_start, draft_pick: p.DraftRank, is_manual: isManual,
+          draft_year: isManual ? null : draftYear(p), delayed_debut: p.delayed_debut === true, option_in_scope: p.optionInScope,
           forecast: r2(p.Pred_WS), range_low: r2(p.Pred_WS - RMSE), range_high: r2(p.Pred_WS + RMSE), rmse: r2(RMSE),
           cohort_rank: rank.rank, cohort_size: rank.size,
           value_pct: r2(p.Pred_Salary_Share_Percent), cost_pct: r2(p.Est_Cost_Percent), surplus: r2(p.ans),
@@ -164,10 +165,10 @@ export default function Report({ p, decided, isManual }: { p: Decided | null; de
           <h1>{p.Player}</h1>
           <p>
             {isManual ? `${tr("rpt_hypo")} · ` : ""}
-            {tr("cohort_option", { y: p.year_start, d: p.year_start - 1 })} · {tr("pick_n", { n: p.DraftRank })} · {tr("rpt_prepared", { d: dateText })}
+            {tr("cohort_option", { y: p.year_start, d: draftYear(p) })} · {tr("pick_n", { n: p.DraftRank })} · {tr("rpt_prepared", { d: dateText })}
           </p>
-          <div className="rpt-verdict" style={{ background: TINT_VAR[p.color], borderColor: LIGHT_VAR[p.color] }}>
-            <Dot color={p.color} />{plain(tr(`verdict_${p.stage}`))}
+          <div className="rpt-verdict" style={{ background: tintOf(p), borderColor: lightOf(p) }}>
+            {p.optionInScope ? <><Dot color={p.color} />{plain(tr(`verdict_${p.stage}`))}</> : tr("verdict_na")}
           </div>
           <div className="hero-ctas no-print">
             <button className="btn btn-accent" onClick={() => window.print()}><Icons.chart size={18} />{tr("rpt_print")}</button>
@@ -180,6 +181,7 @@ export default function Report({ p, decided, isManual }: { p: Decided | null; de
       </section>
 
       <div className="container page-body rpt-doc">
+        <DelayedNotice p={p} />
         {ai.status === "idle" && (
           <div className="rpt-generate no-print">
             <p>{tr("rpt_asof")}</p>
@@ -261,7 +263,7 @@ export default function Report({ p, decided, isManual }: { p: Decided | null; de
         </Sec>
 
         <Sec n={++n} title={tr("rpt_sec_bottom")} ai>
-          <div className="rpt-bottom" style={{ borderColor: LIGHT_VAR[p.color], background: TINT_VAR[p.color] }}>
+          <div className="rpt-bottom" style={{ borderColor: lightOf(p), background: tintOf(p) }}>
             <AiText state={ai}>{(r) => <p>{r.bottom_line}</p>}</AiText>
           </div>
         </Sec>

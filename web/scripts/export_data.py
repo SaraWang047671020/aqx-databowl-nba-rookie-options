@@ -45,6 +45,15 @@ def main():
             "Est_Cost_Percent", "Dynamic_Truth_WS", "BRI_Factor", "Star_Power_Index", "Outcome_Label",
             "year_3", "year_4"]
     rows = [{c: clean(r[c]) for c in cols} for _, r in study[cols].iterrows()]
+    # 延後出賽（簽約後第一季未出賽）的球員：標註實際選秀年，見 scripts/delayed_debut.py
+    delayed = pd.read_csv(os.path.join(de.DATA_DIR, "delayed_debut_players.csv"))
+    delayed = delayed[delayed["contract_delayed"]].set_index(["Player", "year_start"])["draft_year"]
+    for rec in rows:
+        key = (rec["Player"], rec["year_start"])
+        if key in delayed.index:
+            rec["draft_year"] = int(delayed[key])
+            rec["delayed_debut"] = True
+    assert sum(r.get("delayed_debut", False) for r in rows) == len(delayed), "delayed-debut players not matched"
     dump("study.json", rows)
 
     # 驗證用：Python 版的決策結果，前端測試需完全一致
@@ -96,6 +105,9 @@ def main():
         rec["DraftRank"] = int(rec["DraftRank"])
         rec["Outcome_Label"] = None
         rec["segment"] = "oot" if rec["year_start"] == 2024 else "live"
+        rec["draft_year"] = int(r["draft_year"])
+        if bool(r["delayed_debut"]):
+            rec["delayed_debut"] = True
         new_rows.append(rec)
     dump("new_cohorts.json", new_rows)
 
